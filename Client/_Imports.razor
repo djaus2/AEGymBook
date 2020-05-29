@@ -3,7 +3,21 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.AspNetCore.Authorization.Infrastructure
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.JSInterop
+
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using AEGymBook.Shared
 @using AEGymBook.Client
 @using AEGymBook.Client.Shared
+
+
+
+
+@using AEGymBook.Client.Services.Contracts
+@using AEGymBook.Client.Services.Implementations
+@using AEGymBook.Client.States
+@using System.Security.Claims
+
