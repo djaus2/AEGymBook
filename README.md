@@ -1,2 +1,2 @@
 # AEGymBook
-Athletics Essendon GYm Bookings App
+Athletics Essendon Gym Bookings App
