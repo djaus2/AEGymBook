@@ -1,0 +1,15 @@
+﻿@page "/"
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Athletics Essendon Gym Bookings</h1>
+        <h3>Hello @context.User.Identity.Name !!</h3>
+
+
+
+        <SurveyPrompt Title="How is Blazor working for you?" />
+    </Authorized>
+    <Authorizing>
+        <h1>Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>
