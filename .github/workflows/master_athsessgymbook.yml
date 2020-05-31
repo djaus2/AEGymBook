@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - athessgymbook
+name: Build and deploy ASP.Net Core app to Azure Web App - athsessgymbook
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v1
       with:
-        app-name: 'aegymbookserver20200529173120'
+        app-name: 'athsessgymbook'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_2cdaac5877bf462c926b56c4b0241ffe }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_227a62b18ceb4967a13334b10e53c6c7 }}
         package: ${{env.DOTNET_ROOT}}/myapp 
