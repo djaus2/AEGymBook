@@ -31,7 +31,7 @@
     <InputText type="email" id="inputEmailConfirm" class="form-control" placeholder="Email Confirmation" @bind-Value="@registerParameters.EmailConfirm" />
     <ValidationMessage For="@(() => registerParameters.EmailConfirm)" />
 
-    <label for="inputPhone" class="sr-only">Phone</label>
+    <label for="inputPhone" class="sr-only">Phone <i>(Optional)</i></label>
     <InputText type="tel" id="inputPhone" class="form-control" placeholder="Mobile" autofocus @bind-Value="@registerParameters.Phone" />
 
 

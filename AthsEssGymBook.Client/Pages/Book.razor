@@ -1,115 +1,137 @@
 ﻿@page "/Book"
 @using NodaTime;
 @using System;
-<h3>Make a Gym Booking</h3>
+<AuthorizeView>
+    <Authorized>
+        <h3>Make a Gym Booking</h3>
+        <h3>Hello @context.User.Identity.Name !!!</h3>
 
-<p>Click here to choose the <b><i>>Booking Date:</i></b></p>
-<input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" />
-<DatePicker Visible="datePicker2Visible" OnSelected="selected2" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+        <p>Click here to choose the <b><i>>Booking Date:</i></b></p>
+        <input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" />
+        <DatePicker Visible="datePicker2Visible" OnSelected="selected2" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
 
-<p></p>
-<p>Click here to set the <b><i>Booking Start Time:</i></b></p>
-<input type="text" @onfocus=@focussed4 value=@selectedTime4 />
-<TimePicker MinuteStep="30" Visible=visible4 OnSelectedTimeChanged=@changed4 ShowClose=true CloseOnSelect=true />
+        <p></p>
+        <p>Click here to set the <b><i>Booking Start Time:</i></b></p>
+        <input type="text" @onfocus=@focussed4 value=@selectedTime4 />
+        <TimePicker MinuteStep="30" Visible=visible4 OnSelectedTimeChanged=@changed4 ShowClose=true CloseOnSelect=true />
 
-<p></p>
-<button class="btn btn-primary" @onclick="@CheckAvailability">Check availability</button>&nbsp;
-<button class="btn btn-primary" @onclick="@BookMe">Book</button>&nbsp;
-<button class="btn btn-primary" @onclick="@UnBookMe">UnBook</button>
-<br />
-<br />
-<p>Available Booking Slots: @showCount out of 4</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>...</p>
-<p>@Message</p>
+        <p></p>
+        <button class="btn btn-primary" @onclick="@CheckAvailability">Check availability</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@BookMe">Book</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@UnBookMe">UnBook</button>
+        <br />
+        <br />
+        <p>Available Booking Slots: @showCount out of 4</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>...</p>
+        <p>@Message</p>
 
-@functions {
-    int currentCount = 4;
-    int showCount = 0;
-    string Message = "Info";
+        @functions {
+            AuthenticationState context;
+            int currentCount = 4;
+            int showCount = 0;
+            string Message = "Info";
 
-    void CheckAvailability()
-    {
-        showCount = currentCount;
-        datePicker2Visible = false;
-        visible4 = false;
-    }
+            void CheckAvailability()
+            {
+                showCount = currentCount;
+                datePicker2Visible = false;
+                visible4 = false;
+            }
 
-    void BookMe()
-    {
-        if (currentCount > 0)
-        {
-            currentCount--;
+            void BookMe()
+            {
+                if (currentCount > 0)
+                {
+                    currentCount--;
+                }
+                showCount = currentCount;
+                datePicker2Visible = false;
+                visible4 = false;
+
+                BookingInfo info = new BookingInfo();
+                string userName = "Me"; //context.User.Identity.Name;
+                info.Athlete = new UserInfo();
+                info.Athlete.UserName = userName;
+                info.Date = bookDate;
+                info.Time = bookTime;
+
+            }
+
+            void UnBookMe()
+            {
+                if (currentCount < 4)
+                {
+                    currentCount++;
+                }
+                showCount = currentCount;
+                datePicker2Visible = false;
+                visible4 = false;
+            }
+
+            bool visible4 = false;
+            LocalTime selectedTime4;
+
+            bool getTimeVisible = false;
+
+
+            LocalDate Bookingdate;  // = System.DateTime.Today;
+            string ThisDate = System.DateTime.Today.ToString("D");
+
+            bool datePicker2Visible = false;
+            void focussed2(FocusEventArgs e)
+            {
+                datePicker2Visible = true;
+                visible4 = false;
+            }
+
+            DateTime bookDate;
+            void selected2(LocalDate localDate)
+            {
+                bookDate = new DateTime(localDate.Year, localDate.Month, localDate.Day);
+                Message = "";
+                if (bookDate >= DateTime.Today)
+                {
+                    Bookingdate = localDate;
+                    ThisDate = localDate.ToString();
+                    datePicker2Visible = false;
+                    StateHasChanged();
+                    getTimeVisible = true;
+
+                    CheckAvailability();
+                }
+                else
+                {
+                    Message = "Please select a date today or in the future.";
+                }
+            }
+
+            void focussed4()
+            {
+                visible4 = true;
+                datePicker2Visible = false;
+            }
+
+            TimeSpan bookTime;
+            void changed4(LocalTime time)
+            {
+                bookTime = new TimeSpan(time.Hour, time.Minute, 0);
+                selectedTime4 = time;
+                StateHasChanged();
+            }
         }
-        showCount = currentCount;
-        datePicker2Visible = false;
-        visible4 = false;
-    }
 
-    void UnBookMe()
-    {
-        if (currentCount < 4)
-        {
-            currentCount++;
-        }
-        showCount = currentCount;
-        datePicker2Visible = false;
-        visible4 = false;
-    }
-
-    bool visible4 = false;
-    LocalTime selectedTime4;
-
-    bool getTimeVisible = false;
-
-
-    LocalDate Bookingdate;  // = System.DateTime.Today;
-    string ThisDate = System.DateTime.Today.ToString("D");
-
-    bool datePicker2Visible = false;
-    void focussed2(FocusEventArgs e)
-    {
-        datePicker2Visible = true;
-        visible4 = false;
-    }
-    void selected2(LocalDate localDate)
-    {
-        DateTime nw = new DateTime(localDate.Year, localDate.Month, localDate.Day);
-        Message = "";
-        if (nw >= DateTime.Today)
-        {
-            Bookingdate = localDate;
-            ThisDate = localDate.ToString();
-            datePicker2Visible = false;
-            StateHasChanged();
-            getTimeVisible = true;
-
-            CheckAvailability();
-        }
-        else
-        {
-            Message = "Please select a date today or in the future.";
-        }
-    }
-
-    void focussed4()
-    {
-        visible4 = true;
-        datePicker2Visible = false;
-    }
-
-    void changed4(LocalTime time)
-    {
-        selectedTime4 = time;
-        StateHasChanged();
-    }
-}
+    </Authorized>
+    <Authorizing>
+        <h1>Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>
 
 

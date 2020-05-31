@@ -44,6 +44,11 @@ namespace AthsEssGymBook.Server.Controllers
             user.UserName = parameters.UserName;
             var result = await _userManager.CreateAsync(user, parameters.Password);
             if (!result.Succeeded) return BadRequest(result.Errors.FirstOrDefault()?.Description);
+            
+            var usr = await _userManager.FindByNameAsync(user.UserName);
+            usr.Email = parameters.Email;
+            usr.PhoneNumber = parameters.Phone;
+            await _userManager.UpdateAsync(usr);
 
             return await Login(new LoginParameters
             {
