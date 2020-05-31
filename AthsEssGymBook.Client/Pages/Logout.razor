@@ -1,0 +1,29 @@
+﻿@page "/logout"
+@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject IdentityAuthenticationStateProvider authStateProvider
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Athletics Essendon Gym Bookings</h1>
+        <h3>Hello @context.User.Identity.Name Click below to logout</h3>
+        <div class="main">
+            <div class="content px-4">
+                @*<button class="btn btn-lg btn-primary btn-block" type="submit">Logout</button>*@
+                <button type="button" class="btn btn-primary ml-md-auto" @onclick="@LogoutClick">Logout</button>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@functions{
+
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationState { get; set; }
+
+    async Task LogoutClick()
+    {
+        await authStateProvider.Logout();
+        navigationManager.NavigateTo("/login");
+    }
+}

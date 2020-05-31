@@ -1,4 +1,5 @@
 ﻿using System;
+using AthsEssGymBook.Shared;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace AthsEssGymBook.Server.Migrations
@@ -39,7 +40,10 @@ namespace AthsEssGymBook.Server.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    IsAdmin = table.Column<bool>(nullable: false),
+                    IsCoach = table.Column<bool>(nullable: false),
+                    HasAccessCard = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -146,6 +150,30 @@ namespace AthsEssGymBook.Server.Migrations
                     table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+
+            migrationBuilder.CreateTable(
+                name: "BookingInfo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<Guid>(nullable: false),
+                    Slot = table.Column<int>(nullable: false),
+                    Date = table.Column<int>(nullable: false),
+                    Time = table.Column<int>(nullable: false),
+                    Duration = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingInfo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BookingInfo_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",

@@ -1,4 +1,8 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject IdentityAuthenticationStateProvider authStateProvider
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">AE Gym Bookings</a>
     <button class="navbar-toggler" @onclick="@ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -33,8 +37,13 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
+            <NavLink class="nav-link" href="COVID-19">
                 <span class="oi oi-elevator" aria-hidden="true"></span> In In/Out of Gym
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="logout">
+                <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
             </NavLink>
         </li>
     </ul>
@@ -48,5 +57,14 @@
     void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationState { get; set; }
+
+    async Task LogoutClick()
+    {
+        await authStateProvider.Logout();
+        navigationManager.NavigateTo("/login");
     }
 }

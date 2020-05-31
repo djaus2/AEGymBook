@@ -1,6 +1,9 @@
 ﻿@page "/Book"
 @using NodaTime;
 @using System;
+@using AthsEssGymBook.Shared
+@inject HttpClient Http
+@inject IdentityAuthenticationStateProvider authStateProvider
 <AuthorizeView>
     <Authorized>
         <h3>Make a Gym Booking</h3>
@@ -33,11 +36,39 @@
         <p>...</p>
         <p>@Message</p>
 
+
+
         @functions {
-            AuthenticationState context;
+
+            //[CascadingParameter]
+            //Task<AuthenticationState> AuthenticationState { get; set; }
+
+            UserInfo usr2;
+
+            protected override async Task OnInitializedAsync()
+            {
+                var zx = await Http.GetFromJsonAsync<UserInfo0[]>("api/Bookings/GetX?name=djaus");
+                int count  = await Http.GetFromJsonAsync<int>("api/Bookings/Count?name=djaus");
+            }
+
             int currentCount = 4;
             int showCount = 0;
             string Message = "Info";
+
+            bool datePicker2Visible = false;
+            bool visible4 = false;
+
+
+            LocalDate Bookingdate;  // = System.DateTime.Today;
+            string ThisDate = System.DateTime.Today.ToString("D");
+
+            DateTime bookDate;
+
+            TimeSpan bookTime;
+
+
+            LocalTime selectedTime4;
+
 
             void CheckAvailability()
             {
@@ -46,7 +77,7 @@
                 visible4 = false;
             }
 
-            void BookMe()
+            async Task BookMe()
             {
                 if (currentCount > 0)
                 {
@@ -57,11 +88,26 @@
                 visible4 = false;
 
                 BookingInfo info = new BookingInfo();
-                string userName = "Me"; //context.User.Identity.Name;
-                info.Athlete = new UserInfo();
-                info.Athlete.UserName = userName;
+                //string userName = "Me"; //context.User.Identity.Name;
+                //var userInfo =  GetUserInfo();
+                info.User = new UserInfo();
+
+                var xx = await authStateProvider.GetAuthenticationStateAsync();
+                var usr = xx.User;
+                var name = usr.Identity.Name;
+                info.User.UserName = usr.Identity.Name;
+                info.Slot = 1;
                 info.Date = bookDate;
                 info.Time = bookTime;
+                info.Duration = 2;
+
+                BookingInfo_SQL infor_sql = new BookingInfo_SQL(info);
+
+
+
+
+
+
 
             }
 
@@ -76,23 +122,13 @@
                 visible4 = false;
             }
 
-            bool visible4 = false;
-            LocalTime selectedTime4;
-
-            bool getTimeVisible = false;
-
-
-            LocalDate Bookingdate;  // = System.DateTime.Today;
-            string ThisDate = System.DateTime.Today.ToString("D");
-
-            bool datePicker2Visible = false;
             void focussed2(FocusEventArgs e)
             {
                 datePicker2Visible = true;
                 visible4 = false;
             }
 
-            DateTime bookDate;
+
             void selected2(LocalDate localDate)
             {
                 bookDate = new DateTime(localDate.Year, localDate.Month, localDate.Day);
@@ -103,7 +139,7 @@
                     ThisDate = localDate.ToString();
                     datePicker2Visible = false;
                     StateHasChanged();
-                    getTimeVisible = true;
+                    visible4 = true;
 
                     CheckAvailability();
                 }
@@ -119,7 +155,6 @@
                 datePicker2Visible = false;
             }
 
-            TimeSpan bookTime;
             void changed4(LocalTime time)
             {
                 bookTime = new TimeSpan(time.Hour, time.Minute, 0);

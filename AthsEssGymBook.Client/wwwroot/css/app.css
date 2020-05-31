@@ -8,11 +8,17 @@ a, .btn-link {
     color: #ff0000;
 }
 
+a, .btn-link2 {
+    color: white;
+}
+
 .btn-primary {
     color: #ffffff;
     background-color: #ff0000;
     border-color: #000000;
 }
+
+
 
 app {
     position: relative;

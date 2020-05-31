@@ -8,5 +8,8 @@ namespace AthsEssGymBook.Server.Models
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
+        public bool IsAdmin { get; set; } = false;
+        public bool IsCoach { get; set; } = false;
+        public bool HasAccessCard { get; set; } = false;
     }
 }
