@@ -25,6 +25,10 @@ namespace AthsEssGymBook.Client
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+            builder.Services.AddHttpClient<Services.WeatherForecastClient>(client =>
+                client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            builder.Services.AddHttpClient<Services.BookingsClient>(client =>
+                client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
             var host = builder.Build();
             await host.RunAsync();

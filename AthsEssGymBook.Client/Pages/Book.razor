@@ -4,6 +4,9 @@
 @using AthsEssGymBook.Shared
 @inject HttpClient Http
 @inject IdentityAuthenticationStateProvider authStateProvider
+
+@inject Services.BookingsClient Client
+
 <AuthorizeView>
     <Authorized>
         <h3>Make a Gym Booking</h3>
@@ -43,13 +46,20 @@
             //[CascadingParameter]
             //Task<AuthenticationState> AuthenticationState { get; set; }
 
-            UserInfo usr2;
+            private UserInfo0[] bookings;
 
             protected override async Task OnInitializedAsync()
             {
-                var zx = await Http.GetFromJsonAsync<UserInfo0[]>("api/Bookings/GetX?name=djaus");
-                int count  = await Http.GetFromJsonAsync<int>("api/Bookings/Count?name=djaus");
+                var usr = await Client.GetUser("djaus");
             }
+
+            UserInfo usr2;
+
+            //protected override async Task OnInitializedAsync()
+            //{
+            //    // var zx = await Http.GetFromJsonAsync<string>("api/Bookings/getName?name=djaus");
+            //    bool count = await Http.GetFromJsonAsync<bool>("api/Bookings/Count?name=djaus");
+            //}
 
             int currentCount = 4;
             int showCount = 0;

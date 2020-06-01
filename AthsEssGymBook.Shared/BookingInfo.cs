@@ -6,7 +6,7 @@ namespace AthsEssGymBook.Shared
 {
     public class BookingInfo
     {
-        public int BookingInfoId { get; set; }
+        public int Id { get; set; }
         public  UserInfo User { get; set; }
         public int Slot { get; set; }
         public DateTime Date { get; set; }

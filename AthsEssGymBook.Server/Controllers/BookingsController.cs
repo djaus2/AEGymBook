@@ -15,26 +15,64 @@ namespace AthsEssGymBook.Server.Controllers
     {
 
         [HttpGet("[action]")]
-        public IEnumerable<UserInfo0> GetUserX(string name)
+        public string GetUserX(string name)
         {
-            List<UserInfo0> usr;
+            UserInfo0 usr;
             using (var db = new BookingsDBContext())
             {
                 var user = from u in db.AspNetUsers where (u.UserName == name) select u;
-                usr = user.ToList<UserInfo0>();
+                usr = user.FirstOrDefault<UserInfo0>();
             }
-            return usr;
+            return usr.UserName;
         }
 
         [HttpGet("[action]")]
-        public int Count(string name)
+        public bool Count(string name)
         {
+            UserInfo0 usr;
             using (var db = new BookingsDBContext())
             {
                 var user = from u in db.AspNetUsers where (u.UserName == name) select u;
-                var us = user.FirstOrDefault<UserInfo0>();
+                usr = user.FirstOrDefault<UserInfo0>();
             }
-            return 137;
+            return usr.IsAdmin;
+        }
+
+        [HttpGet("[action]")]
+        public UserInfo0  getUser(string name)
+        {
+            UserInfo0 user;
+            using (var db = new BookingsDBContext())
+            {
+                var vUser = from u in db.AspNetUsers where (u.UserName == name) select u;
+                user = vUser.FirstOrDefault<UserInfo0>();
+            }
+            return user;
+        }
+
+        [HttpGet("[action]")]
+        public IEnumerable<BookingInfo> getbookings()
+        {
+            List<BookingInfo> bookings;
+            using (var db = new BookingsDBContext())
+            {
+                var vbookings = from b in db.BookingInfo  select b;
+                bookings = vbookings.ToList<BookingInfo>();
+            }
+            return bookings ;
+        }
+        
+
+        [HttpGet("[action]")]
+        public IEnumerable<UserInfo0> getusers()
+        {
+            List<UserInfo0> users;
+            using (var db = new BookingsDBContext())
+            {
+                var vusers = from b in db.AspNetUsers select b;
+                users = vusers.ToList<UserInfo0>();
+            }
+            return users;
         }
 
 

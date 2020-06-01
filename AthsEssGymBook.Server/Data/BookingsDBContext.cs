@@ -13,7 +13,7 @@ namespace AthsEssGymBook.Server.Data
     public class BookingsDBContext : DbContext
     {
         public DbSet<UserInfo0> AspNetUsers { get; set; }
-        public DbSet<BookingInfo> Bookings { get; set; }
+        public DbSet<BookingInfo> BookingInfo { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
