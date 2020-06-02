@@ -51,6 +51,23 @@ namespace AthsEssGymBook.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+            name: "Athletes",
+            columns: table => new
+            {
+                Id = table.Column<int>(nullable: false),
+                UserName = table.Column<string>(maxLength: 256, nullable: true),
+                Email = table.Column<string>(maxLength: 256, nullable: true),
+                PhoneNumber = table.Column<string>(nullable: true),
+                IsAdmin = table.Column<bool>(nullable: false),
+                IsCoach = table.Column<bool>(nullable: false),
+                HasAccessCard = table.Column<bool>(nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Users", x => x.Id);
+            });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -163,19 +180,19 @@ namespace AthsEssGymBook.Server.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<int>(nullable: false),
                     Slot = table.Column<int>(nullable: false),
-                    Date = table.Column<int>(nullable: false),
-                    Time = table.Column<int>(nullable: false),
-                    Duration = table.Column<int>(nullable: false)
+                    _Date = table.Column<string>(nullable: false),
+                    _Time = table.Column<int>(nullable: false),
+                    _Duration = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BookingInfo", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BookingInfo_AspNetUsers_UserId",
+                        name: "FK_BookingInfo_Athlete_Id",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "Athletes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });

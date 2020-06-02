@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AthsEssGymBook.Shared;
 
 namespace AthsEssGymBook.Server.Data
 {
@@ -15,6 +16,8 @@ namespace AthsEssGymBook.Server.Data
             : base(options)
         {
         }
+        public DbSet<Athlete> Athletes { get; set; }
+        public DbSet<BookingInfo> BookingInfo { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

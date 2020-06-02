@@ -12,12 +12,13 @@ namespace AthsEssGymBook.Server.Data
 {
     public class BookingsDBContext : DbContext
     {
-        public DbSet<UserInfo0> AspNetUsers { get; set; }
+        public DbSet<Athlete> Athletes { get; set; }
         public DbSet<BookingInfo> BookingInfo { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=data.db");
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AthsEssGymBook.Server.Models;
+﻿using AthsEssGymBook.Server.Data;
+using AthsEssGymBook.Server.Models;
 using AthsEssGymBook.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace AthsEssGymBook.Server.Controllers
@@ -21,6 +23,7 @@ namespace AthsEssGymBook.Server.Controllers
         {
             _userManager = userManager;
             _signInManager = signInManager;
+
         }
 
         [HttpPost]
@@ -49,6 +52,78 @@ namespace AthsEssGymBook.Server.Controllers
             usr.Email = parameters.Email;
             usr.PhoneNumber = parameters.Phone;
             await _userManager.UpdateAsync(usr);
+            System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror of user====");
+            Athlete athlete;
+            using (BookingsDBContext db = new BookingsDBContext())
+            {
+                athlete = new Athlete
+                {
+                    Id = 0,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    HasAccessCard = user.HasAccessCard,
+                    IsAdmin = user.IsAdmin,
+                    IsCoach = user.IsCoach,
+                    PhoneNumber = user.PhoneNumber
+                };
+                System.Diagnostics.Debug.WriteLine("====Done Athlete mirror of user====");
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db - 2====");
+                    await db.Athletes.AddAsync(athlete);
+                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db - 3====");
+                    await db.SaveChangesAsync();
+                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db - 1r====");
+                    var athletes = db.Athletes.ToList();
+                    athlete = athletes[0];
+                    System.Diagnostics.Debug.WriteLine(athlete.Id);
+                }
+                catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
+                {
+                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
+                    System.Diagnostics.Debug.WriteLine(sqlEx.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
+                }
+            }
+            System.Diagnostics.Debug.WriteLine(athlete.Id);
+            using (BookingsDBContext db2 = new BookingsDBContext())
+            {
+                athlete.Id = 1;
+                System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror of user====");
+                var booking = new BookingInfo
+                {
+                    Id = 0,
+                    Date = new DateTime(2020, 2, 15),
+                    _Time = 12,
+                    _Duration = 2,
+                    Slot = 1,
+                    UserId = athlete.Id
+                };
+                System.Diagnostics.Debug.WriteLine("====Done Athlete mirror of user====");
+                try
+                {
+                   // db2.Attach<BookingInfo>(booking);
+                    System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 2====");
+                    await db2.BookingInfo.AddAsync(booking);
+                    System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 3====");
+                    await db2.SaveChangesAsync();
+                    System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 4r====");
+                }
+                catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
+                {
+                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
+                    System.Diagnostics.Debug.WriteLine(sqlEx.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
+                }
+                catch (Exception Ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
+                    System.Diagnostics.Debug.WriteLine(Ex.Message);
+                    System.Diagnostics.Debug.WriteLine(Ex.InnerException);
+                }
+            }
+
+
 
             return await Login(new LoginParameters
             {

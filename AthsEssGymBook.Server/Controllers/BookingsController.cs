@@ -2,6 +2,7 @@
 using AthsEssGymBook.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,20 @@ namespace AthsEssGymBook.Server.Controllers
     [Authorize]
     public class BookingsController : Controller
     {
+        private readonly BookingsDBContext _context;
+
+        public BookingsController(BookingsDBContext context)
+        {
+            _context = context;
+        }
+
+
+        // GET: api/BookingInfo
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<BookingInfo>>> GetBookingInfos()
+        {
+            return await _context.BookingInfo.ToListAsync<BookingInfo>();
+        }
 
         [HttpGet("[action]")]
         public string GetUserX(string name)
@@ -73,6 +88,25 @@ namespace AthsEssGymBook.Server.Controllers
                 users = vusers.ToList<UserInfo0>();
             }
             return users;
+        }
+
+        [HttpPost("[action]")]
+        public async Task AddBooking(BookingInfo booking)
+        {
+     
+            using (var db = new BookingsDBContext())
+            {
+                try
+                {
+                    await db.BookingInfo.AddAsync(booking);
+                    await db.SaveChangesAsync();
+                    var bookings = db.BookingInfo.ToList();
+                } catch (Exception ex)
+                {
+
+                }
+            }
+  
         }
 
 

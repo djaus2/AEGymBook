@@ -11,6 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\BookingsController.cs" />
+    <Compile Remove="Data\ToDo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Controllers\BookingsController.cs" />
+    <None Include="Data\ToDo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />

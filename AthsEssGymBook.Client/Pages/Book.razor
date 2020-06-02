@@ -46,14 +46,25 @@
             //[CascadingParameter]
             //Task<AuthenticationState> AuthenticationState { get; set; }
 
-            private UserInfo0[] bookings;
+            //private BookingInfo[] bookings;
+
+            //private Athlete usr;
 
             protected override async Task OnInitializedAsync()
             {
-                var usr = await Client.GetUser("djaus");
+                //var us = await Http.GetFromJsonAsync<Athlete>("api/BookingInfos/");
+                //usr = new AthleteInfo0 { Id = 457 }; // await Client.GetAthlete("djaus");
+                //var zz = await Client.GetBookings();
+                var xx = await Http.GetFromJsonAsync<BookingInfo[]>("api/BookingInfos");
+                DateTime dat = xx[0].Date;
+                TimeSpan time = xx[0].Time;
+                TimeSpan duration = xx[0].Duration;
+
             }
 
-            UserInfo usr2;
+
+
+            //Athlete usr2;
 
             //protected override async Task OnInitializedAsync()
             //{
@@ -98,26 +109,36 @@
                 visible4 = false;
 
                 BookingInfo info = new BookingInfo();
-                //string userName = "Me"; //context.User.Identity.Name;
-                //var userInfo =  GetUserInfo();
-                info.User = new UserInfo();
+                //string AthleteName = "Me"; //context.Athlete.Identity.Name;
+                //var AthleteInfo =  GetAthleteInfo();
+                //info.Athlete = new AthleteInfo();
 
-                var xx = await authStateProvider.GetAuthenticationStateAsync();
-                var usr = xx.User;
-                var name = usr.Identity.Name;
-                info.User.UserName = usr.Identity.Name;
+                //var xx = await authStateProvider.GetAuthenticationStateAsync();
+                //var usr = xx.Athlete;
+                //var name = usr.Identity.Name;
+                //info.User = new Athlete();
+                info.UserId = 1;
+
                 info.Slot = 1;
                 info.Date = bookDate;
                 info.Time = bookTime;
-                info.Duration = 2;
+                info._Duration = 2;
 
-                BookingInfo_SQL infor_sql = new BookingInfo_SQL(info);
+                //BookingInfo_SQL infor_sql = new BookingInfo_SQL(info);
 
+                //await Client.AddBooking(info);
 
+                //await Http.PostAsJsonAsync("api/TodoItems", info);
+                try
+                {
+                    var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
+                    await Http.PostAsJsonAsync("api/BookingInfos", info);
 
-
-
-
+                } catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.InnerException);
+                }
 
             }
 

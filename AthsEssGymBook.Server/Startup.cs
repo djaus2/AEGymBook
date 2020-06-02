@@ -75,7 +75,7 @@ namespace AthsEssGymBook.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext db)
         {
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
@@ -94,6 +94,9 @@ namespace AthsEssGymBook.Server
                 app.UseHsts();
             }
 
+
+            db.Database.EnsureCreated();
+           
             app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
@@ -102,11 +105,20 @@ namespace AthsEssGymBook.Server
             app.UseAuthentication();
             app.UseAuthorization();
 
+            /*app.MapGet("/api/Bookings", GetTodos);
+            app.MapGet("/api/Bookings/{id}", GetTodo);
+            app.MapPost("/api/Bookings", AddBooking);
+            app.MapPost("/api/Bookings/{id}", UpdateCompleted);
+            app.MapDelete("/api/Bookings/{id}", DeleteTodo);*/
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToFile("index.html");
+                //AthsEssGymBook.Server.Data.BookingsoApi.MapRoutes(endpoints);
             });
+
+   
         }
     }
 }

@@ -26,48 +26,54 @@ namespace AthsEssGymBook.Client.Services
             try
             {
                 bookings = await client.GetFromJsonAsync<BookingInfo[]>(
-                    "api/Bookings/getbookings");
+                    "api/Bookings/GetBookingInfos");
             }
-            catch
+            catch (Exception ex)
             {
-              
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
             }
 
             return bookings;
         }
 
-        public async Task<UserInfo0[]> GetUsers()
+        public async Task<Athlete[]> GetAthletes()
         {
-            var users = new UserInfo0[0];
+            var Athletes = new Athlete[0];
 
             try
             {
-                users = await client.GetFromJsonAsync<UserInfo0[]>(
-                    "api/Bookings/getusers");
+                Athletes = await client.GetFromJsonAsync<Athlete[]>(
+                    "api/Bookings2/getAthletes");
             }
             catch
             {
 
             }
 
-            return users;
+            return Athletes;
         }
 
-        public async Task<UserInfo0> GetUser(string name)
+        public async Task<Athlete> GetAthlete(string name)
         {
-            UserInfo0 user = new UserInfo0();
+            Athlete Athlete = new Athlete();
 
             try
             {
-                user = await client.GetFromJsonAsync<UserInfo0>(
-                    "api/Bookings/getUser?name="+name);
+                Athlete = await client.GetFromJsonAsync<Athlete>(
+                    "api/Bookings2/getAthlete?name="+name);
             }
             catch
             {
 
             }
 
-            return user;
+            return Athlete;
+        }
+
+        public async Task AddBooking(BookingInfo booking)
+        {
+            await client.PostAsJsonAsync("api/Bookings/AddBooking", booking);
         }
     }
 }
