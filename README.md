@@ -32,6 +32,9 @@ https://blazorwithidentity.azurewebsites.net/
 - Can add bookings for logged in user
 - Can see all bookings with various filters.
 - Can see bookings for logged in user
-- 2D: Restrict bookings for any period to the app limit
+
+### 2Dos
+- Restrict bookings for any period to the app limit
 - Map allowed booking times
 - Enable roles: athlete,coach,has pass,admin
+- Table layout issue: Currently uses full screen.
