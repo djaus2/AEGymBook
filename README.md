@@ -12,6 +12,8 @@ Uses date time picker from
 
 ### How to run
 
+Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)
+
 1.  Install
     [dotnet-sdk-3.1.300](https://dotnet.microsoft.com/download/dotnet-core/3.1)
     and the latest [Visual Studio 2019](https://visualstudio.microsoft.com/vs/).
@@ -28,6 +30,7 @@ Uses date time picker from
 https://blazorwithidentity.azurewebsites.net/
 
 ### Status
+- Uses SQLite
 - Can register and login.
 - Can add bookings for logged in user
 - Can see all bookings with various filters.
