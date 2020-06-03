@@ -5,7 +5,7 @@
 @inject HttpClient Http
 @inject IdentityAuthenticationStateProvider authStateProvider
 
-@inject Services.BookingsClient Client
+@inject Services.BookingsClient BookingsClient
 
 <AuthorizeView>
     <Authorized>
@@ -55,16 +55,19 @@
                 string name = context.User.Identity.Name;
                 var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
                 Athletes = vathletes.ToList<Athlete>();
-                string id2 = "137";
-                var LoggegInAthlete1 = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id2}");
-                string name2 = "azsx";
-                LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name2}");
+                //string id2 = "137";
+                // LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id2}");
 
+                LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
 
-                var vBookings = await Http.GetFromJsonAsync<BookingInfo[]>("api/BookingInfos");
-                Bookings = vBookings.ToList<BookingInfo>();
+                //var vBookings = await Http.GetFromJsonAsync<BookingInfo[]>($"api/BookingInfos/");
+                //Bookings = vBookings.ToList<BookingInfo>();
                 //int id = 1;
                 //var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
+
+                Bookings = await BookingsClient.GetBookings();
+                //var wwdwd = await BookingsClient.GetBooking(1);
+                //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
             }
 
 
@@ -136,8 +139,9 @@
                 //await Http.PostAsJsonAsync("api/TodoItems", info);
                 try
                 {
-                    var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
-                    await Http.PostAsJsonAsync("api/BookingInfos", info);
+                    //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
+                    //await Http.PostAsJsonAsync("api/BookingInfos", info);
+                    await BookingsClient.AddBooking(info);
 
                 } catch (Exception ex)
                 {

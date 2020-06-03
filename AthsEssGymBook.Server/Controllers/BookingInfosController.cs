@@ -9,6 +9,7 @@ using AthsEssGymBook.Shared;
 using AthsEssGymBook.Server.Data;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
+using AthsEssGymBook.Client.Pages;
 
 namespace AthsEssGymBook.Server.Controllers
 {
@@ -32,7 +33,6 @@ namespace AthsEssGymBook.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BookingInfo>>> GetBookingInfos()
         {
-            System.Diagnostics.Debug.WriteLine("==GetBookingInfos==");
             return await _context.BookingInfo.ToListAsync();
         }
 

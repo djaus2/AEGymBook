@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace AthsEssGymBook.Client.Services
 {
+    using AthsEssGymBook.Client.Pages;
     using AthsEssGymBook.Shared;
+    using System.Dynamic;
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
@@ -13,20 +15,21 @@ namespace AthsEssGymBook.Client.Services
     public class BookingsClient
     {
         private readonly HttpClient client;
+        private const string ServiceEndpoint = "/api/BookingInfos";
 
         public BookingsClient(HttpClient client)
         {
             this.client = client;
         }
 
-        public async Task<BookingInfo[]> GetBookings()
+        public async Task<List<BookingInfo>> GetBookings()
         {
             var bookings = new BookingInfo[0];
 
             try
             {
                 bookings = await client.GetFromJsonAsync<BookingInfo[]>(
-                    "api/Bookings/GetBookingInfos");
+                    ServiceEndpoint);
             }
             catch (Exception ex)
             {
@@ -34,46 +37,58 @@ namespace AthsEssGymBook.Client.Services
                 System.Diagnostics.Debug.WriteLine(ex.InnerException);
             }
 
-            return bookings;
+            return bookings.ToList<BookingInfo>();
         }
 
-        public async Task<Athlete[]> GetAthletes()
+        public async Task<List<BookingInfo>> GetBookings(DateTime date)
         {
-            var Athletes = new Athlete[0];
-
+            var bookings = new BookingInfo[0];
+            var bookingsQ = new List<BookingInfo>();
             try
             {
-                Athletes = await client.GetFromJsonAsync<Athlete[]>(
-                    "api/Bookings2/getAthletes");
+                bookings = await client.GetFromJsonAsync<BookingInfo[]>(
+                    ServiceEndpoint);
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-mm-dd")) select b;
+                bookingsQ.AddRange(books);
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
             }
 
-            return Athletes;
+            return bookingsQ;
         }
 
-        public async Task<Athlete> GetAthlete(string name)
+        public async Task<List<BookingInfo>> GetBookingsForAthlete(Athlete athlete)
         {
-            Athlete Athlete = new Athlete();
-
+            var bookings = new BookingInfo[0];
+            var bookingsQ = new List<BookingInfo>();
             try
             {
-                Athlete = await client.GetFromJsonAsync<Athlete>(
-                    "api/Bookings2/getAthlete?name="+name);
+                bookings = await client.GetFromJsonAsync<BookingInfo[]>(
+                    ServiceEndpoint);
+                var books = from b in bookings where (b.AthleteId == athlete.Id) select b;
+                bookingsQ.AddRange(books);
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
             }
 
-            return Athlete;
+            return bookingsQ;
+        }
+
+        public async Task<BookingInfo> GetBooking(int id)
+        {
+            BookingInfo booking = await client.GetFromJsonAsync<BookingInfo>($"{ServiceEndpoint}/{id}");
+            return booking;
         }
 
         public async Task AddBooking(BookingInfo booking)
         {
-            await client.PostAsJsonAsync("api/Bookings/AddBooking", booking);
+            await client.PostAsJsonAsync(ServiceEndpoint, booking);
         }
     }
 }
