@@ -48,7 +48,56 @@ namespace AthsEssGymBook.Client.Services
             {
                 bookings = await client.GetFromJsonAsync<BookingInfo[]>(
                     ServiceEndpoint);
-                var books = from b in bookings where (b._Date == date.ToString("yyyy-mm-dd")) select b;
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+                bookingsQ.AddRange(books);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return bookingsQ;
+        }
+
+        public async Task<List<BookingInfo>> GetBookingsFrom(DateTime date)
+        {
+            var bookings = new BookingInfo[0];
+            var bookingsQ = new List<BookingInfo>();
+            try
+            {
+                bookings = await client.GetFromJsonAsync<BookingInfo[]>(
+                    ServiceEndpoint);
+                System.Diagnostics.Debug.WriteLine(date);
+                System.Diagnostics.Debug.WriteLine(DateTime.Compare(new DateTime(2020,6,20), date));
+                // b._Date GE date is >=0
+                var books = from b in bookings where DateTime.Compare( b.Date , date) >=0  select b;
+                bookingsQ.AddRange(books);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return bookingsQ;
+        }
+
+        public async Task<List<BookingInfo>> GetBookingsSelectedWeek(DateTime date)
+        {
+            var bookings = new BookingInfo[0];
+            var bookingsQ = new List<BookingInfo>();
+            int dayOfTheWeek = (int)date.DayOfWeek;
+            DateTime startDate = date.Subtract(new TimeSpan(dayOfTheWeek, 0, 0, 0, 0));
+            DateTime endDate = startDate.Add(new TimeSpan(8, 0, 0, 0, 0));
+            System.Diagnostics.Debug.WriteLine(startDate);
+            System.Diagnostics.Debug.WriteLine(date);
+            System.Diagnostics.Debug.WriteLine(endDate);
+            try
+            {
+                bookings = await client.GetFromJsonAsync<BookingInfo[]>(
+                    ServiceEndpoint);
+                var books = from b in bookings where (DateTime.Compare(b.Date, startDate)>0) && (DateTime.Compare(b.Date, endDate)<0) select b;
                 bookingsQ.AddRange(books);
             }
             catch (Exception ex)

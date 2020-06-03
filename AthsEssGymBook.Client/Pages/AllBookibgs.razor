@@ -12,46 +12,49 @@
         <h3>Make a Gym Booking</h3>
         <h3>Hello @context.User.Identity.Name !!!!</h3>
 
-        <p>Click here to choose the <b><i>>Booking Date:</i></b></p>
+        <p>Click here to choose the <b><i>>Booking Date</i></b> to show.</p>
         <input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" />
         <DatePicker Visible="datePicker2Visible" OnSelected="selected2" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
         <p></p>
         <button class="btn btn-primary" @onclick="@ShowToday">Today</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@ThisWeek">This week</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@ShowAll">Show All</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@FromSelected">From Selected Day</button>&nbsp;
         <button class="btn btn-primary" @onclick="@Mine">Mine</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@ShowAll">Show All</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@FromSelected">From Selected Day</button>&nbsp;<br />
+        <button class="btn btn-primary" @onclick="@PreviousWeek">Previous Week</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@SelectedWeek">Selected Week</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@NextWeek">Next Week</button>&nbsp;
+
 
 
         @if (Bookings == null)
         {
-            <p><em>Loading...</em></p>
+        <p><em>Loading...</em></p>
         }
         else
         {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Athlete Id</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Duration</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var booking in Bookings)
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Athlete Id</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Bookings)
                     {
-                        <tr>
-                            <td>@booking.Id</td>
-                            <td>@booking.AthleteId</td>
-                            <td>@booking._Date</td>
-                            <td>@booking.Time</td>
-                            <td>@booking.Duration</td>
-                        </tr>
+                <tr>
+                    <td>@booking.Id</td>
+                    <td>@booking.AthleteId</td>
+                    <td>@booking._Date</td>
+                    <td>@booking.Time</td>
+                    <td>@booking.Duration</td>
+                </tr>
                     }
-                </tbody>
-            </table>
+            </tbody>
+        </table>
         }
 
 
@@ -128,15 +131,33 @@
             {
 
                 bookDate = BookingDateDT;
-                Bookings = await BookingsClient.GetBookings(bookDate);
+                Bookings = await BookingsClient.GetBookingsFrom(bookDate);
                 datePicker2Visible = false;
             }
 
-            async Task ThisWeek()
+            async Task SelectedWeek()
             {
 
-                bookDate = DateTime.Today;
-                Bookings = await BookingsClient.GetBookings(bookDate);
+                bookDate = BookingDateDT;
+                Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate);
+                datePicker2Visible = false;
+            }
+
+            async Task NextWeek()
+            {
+                BookingDateDT = BookingDateDT.Add(new TimeSpan(7, 0, 0, 0, 0));
+                bookDate = BookingDateDT;
+                ThisDate = BookingDateDT.ToString("D");
+                Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate);
+                datePicker2Visible = false;
+            }
+
+            async Task PreviousWeek()
+            {
+                BookingDateDT = BookingDateDT.Subtract(new TimeSpan(7, 0, 0, 0, 0));
+                bookDate = BookingDateDT;
+                ThisDate = BookingDateDT.ToString("D");
+                Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate);
                 datePicker2Visible = false;
             }
 

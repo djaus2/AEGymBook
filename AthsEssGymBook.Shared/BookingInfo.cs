@@ -16,7 +16,7 @@ namespace AthsEssGymBook.Shared
         [JsonPropertyName("Slot")]
         public int Slot { get; set; } = 0;
         [JsonPropertyName("_Date")]
-        public string _Date { get; set; } = DateTime.Now.ToString("yyyy-mm-dd");
+        public string _Date { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
         [JsonPropertyName("_Time")]
         public int _Time { get; set; } = 0; //In units of 30 minutes
         [JsonPropertyName("_Duration")]
@@ -48,7 +48,7 @@ namespace AthsEssGymBook.Shared
 
         public void SetDate (DateTime dat)
         {
-            _Date = dat.ToString("yyyy-mm-dd");
+            _Date = dat.ToString("yyyy-MM-dd");
         }
         public DateTime GetDate()
         {

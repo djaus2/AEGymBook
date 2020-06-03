@@ -69,17 +69,6 @@
                 //var wwdwd = await BookingsClient.GetBooking(1);
                 //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
             }
-
-
-
-            //Athlete usr2;
-
-            //protected override async Task OnInitializedAsync()
-            //{
-            //    // var zx = await Http.GetFromJsonAsync<string>("api/Bookings/getName?name=djaus");
-            //    bool count = await Http.GetFromJsonAsync<bool>("api/Bookings/Count?name=djaus");
-            //}
-
             int currentCount = Settings.MaxNumberInRoom;
             int showCount = 0;
             string Message = "Info";
@@ -91,9 +80,9 @@
             LocalDate Bookingdate;  // = System.DateTime.Today;
             string ThisDate = System.DateTime.Today.ToString("D");
 
-            DateTime bookDate;
+            DateTime bookDate = DateTime.Today;
 
-            TimeSpan bookTime;
+            TimeSpan bookTime = new TimeSpan(12,0,0);
 
 
             LocalTime selectedTime4;
@@ -112,31 +101,21 @@
                 {
                     currentCount--;
                 }
+                else
+                    return;
                 showCount = currentCount;
                 datePicker2Visible = false;
                 visible4 = false;
 
                 BookingInfo info = new BookingInfo();
-                //string AthleteName = "Me"; //context.Athlete.Identity.Name;
-                //var AthleteInfo =  GetAthleteInfo();
-                //info.Athlete = new AthleteInfo();
-
-                //var xx = await authStateProvider.GetAuthenticationStateAsync();
-                //var usr = xx.Athlete;
-                //var name = usr.Identity.Name;
-                //info.User = new Athlete();
                 info.AthleteId = LoggegInAthlete.Id;
 
-                info.Slot = 1;
+                info.Slot = 5-currentCount;
                 info.Date = bookDate;
+                System.Diagnostics.Debug.WriteLine(info.Date);
+   
                 info.Time = bookTime;
                 info._Duration = 2;
-
-                //BookingInfo_SQL infor_sql = new BookingInfo_SQL(info);
-
-                //await Client.AddBooking(info);
-
-                //await Http.PostAsJsonAsync("api/TodoItems", info);
                 try
                 {
                     //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
@@ -172,6 +151,7 @@
             void selected2(LocalDate localDate)
             {
                 bookDate = new DateTime(localDate.Year, localDate.Month, localDate.Day);
+                 System.Diagnostics.Debug.WriteLine(bookDate);
                 Message = "";
                 if (bookDate >= DateTime.Today)
                 {
