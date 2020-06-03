@@ -39,7 +39,7 @@ namespace AthsEssGymBook.Server.Controllers
         #region snippet_GetByID
         // GET: api/BookingInfos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BookingInfo>> GetBookingInfos(long id)
+        public async Task<ActionResult<BookingInfo>> GetBookingInfos(int id)
         {
             var BookingInfo = await _context.BookingInfo.FindAsync(id);
 
