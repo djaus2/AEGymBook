@@ -9,6 +9,7 @@ using AthsEssGymBook.Shared;
 using AthsEssGymBook.Server.Data;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace AthsEssGymBook.Server.Controllers
 {
@@ -21,7 +22,7 @@ namespace AthsEssGymBook.Server.Controllers
 
         public AthletesController() //(BookingsDBContext context)
         {
-            DbContextOptions<ApplicationDbContext> optionsBuilder = new DbContextOptions<ApplicationDbContext> ();
+            DbContextOptions<ApplicationDbContext> optionsBuilder = new DbContextOptions<ApplicationDbContext>();
             //optionsBuilder.UseSqlite("Data Source=data.db");
             _context = new BookingsDBContext();
             System.Diagnostics.Debug.WriteLine("==AthletesController==");
@@ -36,47 +37,32 @@ namespace AthsEssGymBook.Server.Controllers
             return await _context.Athletes.ToListAsync();
         }
 
-        #region snippet_GetByID
-        //// GET: api/Athletes/5
-        //[HttpGet("{id}")]
-        //public Athlete GetAthletes(long id)
-        //{
-        //    //var Athlete = await _context.Athletes.FindAsync(id);
-
-        //    //if (Athlete == null)
-        //    //{
-        //    //    return NotFound();
-        //    //}
-
-        //    //return Athlete;
-
-        //    var vAthlete = from u in _context.Athletes where (u.Id== id) select u;
-        //    //if (Athlete == null)
-        //    //{
-        //    //    return NotFound();
-        //    //}
-        //    Athlete athlete = vAthlete.FirstOrDefault<Athlete>();
-        //    return athlete;
-        //    //return await (Task<ActionResult<Athlete>>)vAthlete;
-        //}
-        #endregion
-
-        #region snippet_GetByID
+        #region snippet_GetByIDorName
         // GET: api/Athletes/5
-        [HttpGet("{name}")]
-        public Athlete GetAthletes(string name)
+        [HttpGet("{param}")]
+        public async Task<ActionResult<Athlete>> GetAthlete(string param)
         {
+            int id;
+            if (int.TryParse(param, out id))
+            {
+                var athlete = await _context.Athletes.FindAsync(id);
 
-            var vAthlete = from u in _context.Athletes where (u.UserName == name) select u;
-            //if (Athlete == null)
-            //{
-            //    return NotFound();
-            //}
-            Athlete athlete = vAthlete.FirstOrDefault<Athlete>();
-            return athlete;
-        }
+                if (athlete == null)
+                {
+                    return NotFound();
+                }
+                return athlete;
+            }
+            else
+            {
+                string name = param;
+                var vAthlete = from u in _context.Athletes where (u.UserName == name) select u;
+                return vAthlete.FirstOrDefault();
+            }
 
+         }
         #endregion
+
 
         #region snippet_Update
         // PUT: api/Athletes/5
@@ -110,36 +96,23 @@ namespace AthsEssGymBook.Server.Controllers
         }
         #endregion
 
- 
-
-
         #region snippet_Create
         // POST: api/Athletes
         [HttpPost]
         public async Task<ActionResult<Athlete>> PostAthletes(Athlete Athlete)
         {
-            int i = 0;
             try
             {
-
-                //i++;
-                //Athlete = new Athlete { AthleteId = usr.Id, Slot = 1, Date = new DateTime(2020, 6, 1), Time = new TimeSpan(14, 0, 0), _Duration = 2 };
-                i++;
                 _context.Athletes.Add(Athlete);
-                i++;
                 await _context.SaveChangesAsync();
-                i++;
              }
             catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
             {
-                System.Diagnostics.Debug.WriteLine(i);
                 System.Diagnostics.Debug.WriteLine(sqlEx.Message);
                 System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
             }
-            System.Diagnostics.Debug.WriteLine("Got to  Return");
             //return CreatedAtAction("GetAthlete", new { id = Athlete.Id }, Athlete);
             return CreatedAtAction(nameof(GetAthletes), new { id = Athlete.Id }, Athlete);
-
         }
         #endregion
 

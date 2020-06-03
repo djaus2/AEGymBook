@@ -11,8 +11,8 @@ namespace AthsEssGymBook.Shared
     {
         [JsonPropertyName("Id")]
         public int Id { get; set; }
-        [JsonPropertyName("UserId")]
-        public int UserId { get; set; }
+        [JsonPropertyName("AthleteId")]
+        public int AthleteId { get; set; }
         [JsonPropertyName("Slot")]
         public int Slot { get; set; } = 0;
         [JsonPropertyName("_Date")]

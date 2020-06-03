@@ -45,8 +45,8 @@
 
             AuthenticationState context { get; set; }
             List<BookingInfo> Bookings { get; set; }
-            Athlete athlete { get; set; }
-            List<Athlete> athletes { get; set; }
+            Athlete LoggegInAthlete { get; set; }
+            List<Athlete> Athletes { get; set; }
 
             protected override async Task OnInitializedAsync()
             {
@@ -54,21 +54,17 @@
                 context = await authStateProvider.GetAuthenticationStateAsync();
                 string name = context.User.Identity.Name;
                 var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
-                athletes = vathletes.ToList<Athlete>();
-                athlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
-
-                //$"{ServiceEndpoint}/{id}"
-                //int id = 1;
-                //string uu = "djaus";
-                //var athletez = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id}");
+                Athletes = vathletes.ToList<Athlete>();
+                string id2 = "137";
+                var LoggegInAthlete1 = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id2}");
+                string name2 = "azsx";
+                LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name2}");
 
 
                 var vBookings = await Http.GetFromJsonAsync<BookingInfo[]>("api/BookingInfos");
                 Bookings = vBookings.ToList<BookingInfo>();
-                int id = 1;
-                var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
-
-
+                //int id = 1;
+                //var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
             }
 
 
@@ -126,7 +122,7 @@
                 //var usr = xx.Athlete;
                 //var name = usr.Identity.Name;
                 //info.User = new Athlete();
-                info.UserId = 1;
+                info.AthleteId = LoggegInAthlete.Id;
 
                 info.Slot = 1;
                 info.Date = bookDate;

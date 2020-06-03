@@ -52,7 +52,6 @@ namespace AthsEssGymBook.Server.Controllers
             usr.Email = parameters.Email;
             usr.PhoneNumber = parameters.Phone;
             await _userManager.UpdateAsync(usr);
-            System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror of user====");
             Athlete athlete;
             using (BookingsDBContext db = new BookingsDBContext())
             {
@@ -66,62 +65,57 @@ namespace AthsEssGymBook.Server.Controllers
                     IsCoach = user.IsCoach,
                     PhoneNumber = user.PhoneNumber
                 };
-                System.Diagnostics.Debug.WriteLine("====Done Athlete mirror of user====");
                 try
                 {
-                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db - 2====");
                     await db.Athletes.AddAsync(athlete);
-                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db - 3====");
                     await db.SaveChangesAsync();
-                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db - 1r====");
                     var athletes = db.Athletes.ToList();
                     athlete = athletes[0];
                     System.Diagnostics.Debug.WriteLine(athlete.Id);
                 }
                 catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
                 {
-                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
                     System.Diagnostics.Debug.WriteLine(sqlEx.Message);
                     System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
                 }
             }
             System.Diagnostics.Debug.WriteLine(athlete.Id);
-            using (BookingsDBContext db2 = new BookingsDBContext())
-            {
-                athlete.Id = 1;
-                System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror of user====");
-                var booking = new BookingInfo
-                {
-                    Id = 0,
-                    Date = new DateTime(2020, 2, 15),
-                    _Time = 12,
-                    _Duration = 2,
-                    Slot = 1,
-                    UserId = athlete.Id
-                };
-                System.Diagnostics.Debug.WriteLine("====Done Athlete mirror of user====");
-                try
-                {
-                   // db2.Attach<BookingInfo>(booking);
-                    System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 2====");
-                    await db2.BookingInfo.AddAsync(booking);
-                    System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 3====");
-                    await db2.SaveChangesAsync();
-                    System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 4r====");
-                }
-                catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
-                {
-                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
-                    System.Diagnostics.Debug.WriteLine(sqlEx.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
-                }
-                catch (Exception Ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
-                    System.Diagnostics.Debug.WriteLine(Ex.Message);
-                    System.Diagnostics.Debug.WriteLine(Ex.InnerException);
-                }
-            }
+            //using (BookingsDBContext db2 = new BookingsDBContext())
+            //{
+            //    athlete.Id = 1;
+            //    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror of user====");
+            //    var booking = new BookingInfo
+            //    {
+            //        Id = 0,
+            //        Date = new DateTime(2020, 2, 15),
+            //        _Time = 12,
+            //        _Duration = 2,
+            //        Slot = 1,
+            //        AthleteId = athlete.Id
+            //    };
+            //    System.Diagnostics.Debug.WriteLine("====Done Athlete mirror of user====");
+            //    try
+            //    {
+            //       // db2.Attach<BookingInfo>(booking);
+            //        System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 2====");
+            //        await db2.BookingInfo.AddAsync(booking);
+            //        System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 3====");
+            //        await db2.SaveChangesAsync();
+            //        System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 4r====");
+            //    }
+            //    catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
+            //        System.Diagnostics.Debug.WriteLine(sqlEx.Message);
+            //        System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
+            //    }
+            //    catch (Exception Ex)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
+            //        System.Diagnostics.Debug.WriteLine(Ex.Message);
+            //        System.Diagnostics.Debug.WriteLine(Ex.InnerException);
+            //    }
+            //}
 
 
 

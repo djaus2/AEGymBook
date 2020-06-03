@@ -180,7 +180,7 @@ namespace AthsEssGymBook.Server.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<int>(nullable: false),
+                    AthleteId = table.Column<int>(nullable: false),
                     Slot = table.Column<int>(nullable: false),
                     _Date = table.Column<string>(nullable: false),
                     _Time = table.Column<int>(nullable: false),
@@ -191,7 +191,7 @@ namespace AthsEssGymBook.Server.Migrations
                     table.PrimaryKey("PK_BookingInfo", x => x.Id);
                     table.ForeignKey(
                         name: "FK_BookingInfo_Athlete_Id",
-                        column: x => x.UserId,
+                        column: x => x.AthleteId,
                         principalTable: "Athletes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
