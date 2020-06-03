@@ -9,52 +9,66 @@
 
 <AuthorizeView>
     <Authorized>
-        <h3>Make a Gym Booking</h3>
+        <h3>My Gym Bookings</h3>
         <h3>Hello @context.User.Identity.Name !!!!</h3>
 
         <p>Click here to choose the <b><i>>Booking Date</i></b> to show.</p>
-        <input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" />
         <DatePicker Visible="datePicker2Visible" OnSelected="selected2" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
-        <p></p>
-        <button class="btn btn-primary" @onclick="@ShowToday">Today</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@Mine">Mine</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@ShowAll">Show All</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@FromSelected">From Selected Day</button>&nbsp;<br />
-        <button class="btn btn-primary" @onclick="@PreviousWeek">Previous Week</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@SelectedWeek">Selected Week</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@NextWeek">Next Week</button>&nbsp;
+        <table class="table" >
+            <tbody>
+            <tr width="100px">
+                <td colspan="3"><input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" /></td>
+                <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
+            </tr>
+            <tr width="100px">
+                <td><b>Show Date:</b></td>
+                <td><button class="btn btn-primary" @onclick="@Selected">Selected</button></td>
+                <td><button class="btn btn-primary" @onclick="@FromSelected">From</button></td>
+                <td><button class="btn btn-primary" @onclick="@ShowAll">All</button></td>
+
+            </tr>
+            <tr width="100px">
+                <td><b>Show Week:</b></td>
+                <td><button class="btn btn-primary" @onclick="@PreviousWeek">Prev</button></td>
+                <td><button class="btn btn-primary" @onclick="@SelectedWeek">Selected</button></td>
+                <td><button class="btn btn-primary" @onclick="@NextWeek">Next</button></td>
+            </tr>
+            </tbody>
+        </table>
 
 
 
         @if (Bookings == null)
         {
-        <p><em>Loading...</em></p>
+            <p><em>Loading...</em></p>
         }
         else
         {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Athlete Id</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var booking in Bookings)
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Athlete Id</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Slot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Bookings)
                     {
-                <tr>
-                    <td>@booking.Id</td>
-                    <td>@booking.AthleteId</td>
-                    <td>@booking._Date</td>
-                    <td>@booking.Time</td>
-                    <td>@booking.Duration</td>
-                </tr>
+                        <tr>
+                            <td>@booking.Id</td>
+                            <td>@booking.AthleteId</td>
+                            <td>@booking._Date</td>
+                            <td>@booking.Time</td>
+                            <td>@booking.Duration</td>
+                            <td>@booking.Slot</td>
+                        </tr>
                     }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         }
 
 
@@ -83,7 +97,7 @@
                 //int id = 1;
                 //var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
 
-                Bookings = await BookingsClient.GetBookings();
+                Bookings = await BookingsClient.GetBookingList();
                 //var wwdwd = await BookingsClient.GetBooking(1);
                 //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
             }
@@ -116,6 +130,14 @@
             async Task ShowToday()
             {
                 BookingDateDT = DateTime.Today;
+                ThisDate = BookingDateDT.ToString("D");
+                Bookings = await BookingsClient.GetBookings(BookingDateDT);
+                datePicker2Visible = false;
+            }
+
+            async Task Selected()
+            {
+                ThisDate = BookingDateDT.ToString("D");
                 Bookings = await BookingsClient.GetBookings(BookingDateDT);
                 datePicker2Visible = false;
             }
@@ -123,7 +145,8 @@
             async Task ShowAll()
             {
                 BookingDateDT = DateTime.Today;
-                Bookings = await BookingsClient.GetBookings();
+                ThisDate = BookingDateDT.ToString("D");
+                Bookings = await BookingsClient.GetBookingList();
                 datePicker2Visible = false;
             }
 
@@ -131,6 +154,7 @@
             {
 
                 bookDate = BookingDateDT;
+                ThisDate = BookingDateDT.ToString("D");
                 Bookings = await BookingsClient.GetBookingsFrom(bookDate);
                 datePicker2Visible = false;
             }
@@ -139,6 +163,7 @@
             {
 
                 bookDate = BookingDateDT;
+                ThisDate = BookingDateDT.ToString("D");
                 Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate);
                 datePicker2Visible = false;
             }
@@ -161,13 +186,6 @@
                 datePicker2Visible = false;
             }
 
-            async Task Mine()
-            {
-
-                bookDate = DateTime.Today;
-                Bookings = await BookingsClient.GetBookingsForAthlete(LoggegInAthlete);
-                datePicker2Visible = false;
-            }
 
         }
 
