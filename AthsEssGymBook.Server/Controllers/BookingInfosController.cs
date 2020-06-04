@@ -55,7 +55,7 @@ namespace AthsEssGymBook.Server.Controllers
         #region snippet_Update
         // PUT: api/BookingInfos/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBookingInfos(long id, BookingInfo BookingInfo)
+        public async Task<IActionResult> PutBookingInfos(int id, BookingInfo BookingInfo)
         {
             if (id != BookingInfo.Id)
             {
@@ -104,14 +104,8 @@ namespace AthsEssGymBook.Server.Controllers
             int i = 0;
             try
             {
-
-                //i++;
-                //BookingInfo = new BookingInfo { UserId = usr.Id, Slot = 1, Date = new DateTime(2020, 6, 1), Time = new TimeSpan(14, 0, 0), _Duration = 2 };
-                i++;
                 _context.BookingInfo.Add(BookingInfo);
-                i++;
                 await _context.SaveChangesAsync();
-                i++;
              }
             catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
             {
@@ -129,8 +123,10 @@ namespace AthsEssGymBook.Server.Controllers
         #region snippet_Delete
         // DELETE: api/BookingInfos/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<BookingInfo>> DeleteBookingInfos(long id)
+        public async Task<ActionResult<BookingInfo>> DeleteBookingInfos(int id)
         {
+            bool exists = _context.BookingInfo.Any(e => e.Id == id);
+
             var BookingInfo = await _context.BookingInfo.FindAsync(id);
             if (BookingInfo == null)
             {
@@ -144,7 +140,7 @@ namespace AthsEssGymBook.Server.Controllers
         }
         #endregion
 
-        private bool BookingInfoExists(long id)
+        private bool BookingInfoExists(int id)
         {
             return _context.BookingInfo.Any(e => e.Id == id);
         }

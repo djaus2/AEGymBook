@@ -6,7 +6,7 @@ namespace AthsEssGymBook.Shared
 {
     public static class Settings
     {
-        public static bool FORDEVONLY_User_Can_book_more_than_once_at_one_time { get; set; } = true;
+        public static bool FORDEVONLY_User_Can_book_more_than_once_at_one_time { get; set; } = false;
         public static TimeSpan AddBookingShowStartTime { get; set; } = new TimeSpan(16, 0, 0);
         public static int MaxNumberInRoom { get; set; } = 4;
         public static int TimeUnitMinutes { get; set; } = 30; //i.e. 1/2hr

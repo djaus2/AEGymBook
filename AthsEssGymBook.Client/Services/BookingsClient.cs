@@ -23,13 +23,13 @@ namespace AthsEssGymBook.Client.Services
         }
         //select Count(*) from BookingInfo where   _Date == "2020-05-04"
 
+
         public async Task<List<BookingInfo>> GetBookingList(int Id = 0)
         {
             var bookings = new BookingInfo[0];
 
             try
             {
-
                 bookings = await client.GetFromJsonAsync<BookingInfo[]>(
                     ServiceEndpoint);
             }
@@ -43,7 +43,8 @@ namespace AthsEssGymBook.Client.Services
                 var book = from b in bookings where b.AthleteId == Id select b;
                 bookings = book.ToArray<BookingInfo>();
             }
-            return bookings.ToList<BookingInfo>();
+            var books2 = bookings.OrderByDescending(b => b.Date).ThenBy(b => b.Time);
+            return books2.ToList<BookingInfo>();
         }
 
 
@@ -67,6 +68,7 @@ namespace AthsEssGymBook.Client.Services
                 var book = from b in bookings where b.AthleteId == Id select b;
                 bookings = book.ToArray<BookingInfo>();
             }
+            var books2 = bookings.OrderByDescending(b => b.Date).ThenBy(b => b.Time);
             return bookings;
         }
 
@@ -89,29 +91,9 @@ namespace AthsEssGymBook.Client.Services
             return bookingsQ;
         }
 
-        //select Count(*) from BookingInfo where   _Date == "2020-05-04"
-        //public async Task<int> CountBookings(DateTime date, int Id = 0)
-        //{
-        //    var bookings = new BookingInfo[0];
-        //    var bookingsQ = new List<BookingInfo>();
-        //    try
-        //    {
-        //        bookings = await GetBookings(Id);
-        //        var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
-        //        bookingsQ.AddRange(books);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine(ex.Message);
-        //        System.Diagnostics.Debug.WriteLine(ex.InnerException);
-        //    }
-
-        //    return 0; 
-        //}
-
-        public async Task<Dictionary<TimeSpan,int>> GetBookingCountForDay(DateTime date, int Id)
+        public async Task <List<TimeSpan>> GetMyBookingsForDay(DateTime date, int Id)
         {
-            Dictionary<TimeSpan, int> dict = new Dictionary<TimeSpan, int>();
+             List<TimeSpan> myBook = new List<TimeSpan>();
             var bookings = new BookingInfo[0];
             var bookingsQ = new List<BookingInfo>();
             try
@@ -125,7 +107,38 @@ namespace AthsEssGymBook.Client.Services
                     int count = spots.Count();
                     if (count != 0)
                     {
-                        dict[new TimeSpan(0, time * 30, 0)]=  count;
+                        TimeSpan timeTS = new TimeSpan(0, time * 30, 0);
+                        if (! myBook.Contains(timeTS))
+                            myBook.Add(timeTS);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return myBook;
+        }
+
+        public async Task<Dictionary<TimeSpan, int>> GetBookingCountForDay(DateTime date)
+        {
+            Dictionary<TimeSpan, int> dict = new Dictionary<TimeSpan, int>();
+            var bookings = new BookingInfo[0];
+            var bookingsQ = new List<BookingInfo>();
+            try
+            {
+                bookings = await GetBookings();
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+                int[] times = books.AsEnumerable().Select(s => s._Time).ToArray<int>();
+                foreach (var time in times)
+                {
+                    var spots = from t in books where t._Time == time select t;
+                    int count = spots.Count();
+                    if (count != 0)
+                    {
+                        dict[new TimeSpan(0, time * 30, 0)] = count;
                     }
                 }
             }
@@ -215,6 +228,11 @@ namespace AthsEssGymBook.Client.Services
         public async Task AddBooking(BookingInfo booking)
         {
             await client.PostAsJsonAsync(ServiceEndpoint, booking);
+        }
+
+        public async Task DeleteBooking(int id)
+        {
+            await client.DeleteAsync($"{ServiceEndpoint}/{id}");
         }
     }
 }

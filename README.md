@@ -35,10 +35,14 @@ https://blazorwithidentity.azurewebsites.net/
 - Can add bookings for logged in user
 - Can see all bookings with various filters.
 - Can see bookings for logged in user
-- Can install
+- Can install on phone. _(Android tested)_
 
 ### 2Dos
-- Restrict bookings for any period to the app limit
+- Restrict bookings for any time slot to the app limit _**Done**_
+- User can only book a timeslot once  _**Done**_   _(In dev mode can book more than once though)._
+- Bookings Orderby Date decending then by Time of day ascending  _**Done**_
+- Mechanism for user to delete their bookings. _**Done**_
+- Set Min day to book as Today.  _**Done**_
 - Map allowed booking times
 - Enable roles: athlete,coach,has pass,admin
-- Table layout issue: Currently uses full screen.
+- Table layout issue for buttons, only: Currently uses full screen.
