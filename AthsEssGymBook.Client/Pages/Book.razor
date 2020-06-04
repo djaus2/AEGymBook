@@ -10,7 +10,9 @@
 <AuthorizeView>
     <Authorized>
         <h3>Make a Gym Booking</h3>
-        <h3>Hello @context.User.Identity.Name !!!!</h3
+        <h3>
+            Hello @context.User.Identity.Name !!!!
+        </h3>
         <p>@Message</p>
 
         <p>Click here to choose the <b><i>>Booking Date:</i></b></p>
@@ -23,9 +25,9 @@
         <TimePicker MinuteStep="30" Visible=visible4 OnSelectedTimeChanged=@changed4 ShowClose=true CloseOnSelect=true />
 
         <p></p>
-        <button class="btn btn-primary" @onclick="@CheckAvailability">Check availability</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@CheckAvailability">Prev</button>&nbsp;
         <button class="btn btn-primary" @onclick="@BookMe">Book</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@UnBookMe">UnBook</button>
+        <button class="btn btn-primary" @onclick="@UnBookMe">Next</button>
         <br />
         <br />
         <p>Available Booking Slots: @showCount out of 4</p>
@@ -38,171 +40,228 @@
         <p>...</p>
         <p>...</p>
         <p>...</p>
-        
-
-
-
-        @functions {
-
-            AuthenticationState context { get; set; }
-            List<BookingInfo> Bookings { get; set; }
-            Athlete LoggegInAthlete { get; set; }
-            List<Athlete> Athletes { get; set; }
-            Dictionary<TimeSpan, int> BookingCounts { get; set; }
-
-            protected override async Task OnInitializedAsync()
-            {
-
-                context = await authStateProvider.GetAuthenticationStateAsync();
-                string name = context.User.Identity.Name;
-                var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
-                Athletes = vathletes.ToList<Athlete>();
-                //string id2 = "137";
-                // LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id2}");
-
-                LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
-
-                //var vBookings = await Http.GetFromJsonAsync<BookingInfo[]>($"api/BookingInfos/");
-                //Bookings = vBookings.ToList<BookingInfo>();
-                //int id = 1;
-                //var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
-
-                Bookings = await BookingsClient.GetBookingList();
-                //var wwdwd = await BookingsClient.GetBooking(1);
-                //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
-                BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today, LoggegInAthlete.Id);
-            }
-            int currentCount = Settings.MaxNumberInRoom;
-            int showCount = 0;
-            string Message = "Info";
-
-            bool datePicker2Visible = false;
-            bool visible4 = false;
-
-
-            LocalDate Bookingdate;  // = System.DateTime.Today;
-            string ThisDate = System.DateTime.Today.ToString("D");
-
-            DateTime bookDate = DateTime.Today;
-
-            TimeSpan bookTime = new TimeSpan(12,0,0);
-
-
-            LocalTime selectedTime4;
-
-
-            void CheckAvailability()
-            {
-                showCount = currentCount;
-                datePicker2Visible = false;
-                visible4 = false;
-            }
-
-            async Task BookMe()
-            {
-                //if (currentCount > 0)
-                //{
-                //    currentCount--;
-                //}
-                //else
-                //    return;
-                showCount = currentCount;
-                datePicker2Visible = false;
-                visible4 = false;
-
-                BookingInfo info = new BookingInfo();
-                info.AthleteId = LoggegInAthlete.Id;
-
-                info.Slot = 5-currentCount;
-                info.Date = bookDate;
-                System.Diagnostics.Debug.WriteLine(info.Date);
-
-                info.Time = bookTime;
-                info._Duration = 2;
-                int count = 0;
-                if (BookingCounts.Keys.Contains<TimeSpan>(info.Time))
-                {
-                    count = BookingCounts[info.Time];
-                }
-                if (count < AthsEssGymBook.Shared.Settings.MaxBookUnits)
-                {
-                    try
-                    {
-                        //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
-                        //await Http.PostAsJsonAsync("api/BookingInfos", info);
-                        await BookingsClient.AddBooking(info);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex.Message);
-                        System.Diagnostics.Debug.WriteLine(ex.InnerException);
-                    }
-                    Message = "Booked";
-                }
-                else
-                    Message = "Not available";
-
-            }
-
-            void UnBookMe()
-            {
-                if (currentCount < 4)
-                {
-                    currentCount++;
-                }
-                showCount = currentCount;
-                datePicker2Visible = false;
-                visible4 = false;
-            }
-
-            void focussed2(FocusEventArgs e)
-            {
-                datePicker2Visible = true;
-                visible4 = false;
-            }
-
-
-            async Task selected2(LocalDate localDate)
-            {
-                bookDate = new DateTime(localDate.Year, localDate.Month, localDate.Day);
-                System.Diagnostics.Debug.WriteLine(bookDate);
-                Message = "";
-                if (bookDate >= DateTime.Today)
-                {
-                    Bookingdate = localDate;
-                    ThisDate = localDate.ToString();
-                    datePicker2Visible = false;
-                    StateHasChanged();
-                    visible4 = true;
-                    BookingCounts = await BookingsClient.GetBookingCountForDay(bookDate, LoggegInAthlete.Id);
-
-                    CheckAvailability();
-                }
-                else
-                {
-                    Message = "Please select a date today or in the future.";
-                }
-            }
-
-            void focussed4()
-            {
-                visible4 = true;
-                datePicker2Visible = false;
-            }
-
-            void changed4(LocalTime time)
-            {
-                bookTime = new TimeSpan(time.Hour, time.Minute, 0);
-                selectedTime4 = time;
-                StateHasChanged();
-            }
-        }
-
     </Authorized>
     <Authorizing>
         <h1>Loading ...</h1>
     </Authorizing>
 </AuthorizeView>
+
+
+
+@functions {
+
+        AuthenticationState context { get; set; }
+        List<BookingInfo> Bookings { get; set; }
+        Athlete LoggegInAthlete { get; set; }
+        List<Athlete> Athletes { get; set; }
+        Dictionary<TimeSpan, int> BookingCounts { get; set; }
+
+        int currentCount = Settings.MaxNumberInRoom;
+        int showCount = 0;
+        string Message = "Info";
+
+        bool datePicker2Visible = false;
+        bool visible4 = false;
+
+
+        LocalDate Bookingdate;  // = System.DateTime.Today;
+        string ThisDate = System.DateTime.Today.ToString("D");
+
+        DateTime bookDate = DateTime.Today;
+
+        TimeSpan bookTime = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
+
+
+        LocalTime selectedTime4;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        context = await authStateProvider.GetAuthenticationStateAsync();
+        string name = context.User.Identity.Name;
+        var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
+        Athletes = vathletes.ToList<Athlete>();
+        //string id2 = "137";
+        // LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id2}");
+
+        LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
+
+        //var vBookings = await Http.GetFromJsonAsync<BookingInfo[]>($"api/BookingInfos/");
+        //Bookings = vBookings.ToList<BookingInfo>();
+        //int id = 1;
+        //var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
+
+        Bookings = await BookingsClient.GetBookingList();
+        //var wwdwd = await BookingsClient.GetBooking(1);
+        //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
+        BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today, LoggegInAthlete.Id);
+        selectedTime4 = new LocalTime(bookTime.Hours, bookTime.Minutes, bookTime.Seconds);
+        StateHasChanged();
+        visible4 = false;
+        int count = 0;
+        if (BookingCounts.Keys.Contains<TimeSpan>(bookTime))
+        {
+            count = BookingCounts[bookTime];
+        }
+        Message = "Some bookings available at this time.";
+        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
+        if (showCount == 0)
+            Message = "No bookings available at this time.";
+    }
+
+
+
+    void CheckAvailability()
+    {
+        bookTime = bookTime.Subtract(new TimeSpan(0, 30, 0));
+        selectedTime4 = new LocalTime(bookTime.Hours,bookTime.Minutes,bookTime.Seconds);
+        StateHasChanged();
+        Message = "Some bookings available at this time.";
+        int count = 0;
+        var rt = BookingCounts.Keys;
+        bool tty = BookingCounts.Keys.Contains<TimeSpan>(bookTime);
+        if (BookingCounts.Keys.Contains<TimeSpan>(bookTime))
+        {
+            count = BookingCounts[bookTime];
+        }
+        visible4 = false;
+        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
+        if (showCount == 0)
+            Message = "No bookings available at this time.";
+    }
+
+    async Task BookMe()
+    {
+        //if (currentCount > 0)
+        //{
+        //    currentCount--;
+        //}
+        //else
+        //    return;
+        showCount = currentCount;
+        datePicker2Visible = false;
+        visible4 = false;
+
+        BookingInfo info = new BookingInfo();
+        info.AthleteId = LoggegInAthlete.Id;
+
+        info.Slot = 5 - currentCount;
+        info.Date = bookDate;
+        System.Diagnostics.Debug.WriteLine(info.Date);
+
+        info.Time = bookTime;
+        info._Duration = 2;
+        int count = 0;
+        if (BookingCounts.Keys.Contains<TimeSpan>(info.Time))
+        {
+            count = BookingCounts[info.Time];
+        }
+        if (count < AthsEssGymBook.Shared.Settings.MaxNumberInRoom)
+        {
+            try
+            {
+                //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
+                //await Http.PostAsJsonAsync("api/BookingInfos", info);
+                await BookingsClient.AddBooking(info);
+                BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today, LoggegInAthlete.Id);
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+            Message = $"Just booked you.";
+            showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - BookingCounts[bookTime];
+            if (showCount == 0)
+                Message += " - No more bookings available at this time..";
+        }
+        else
+        {
+            Message = "No bookings available at this time.";
+            showCount = 0;
+        }
+
+    }
+
+    void UnBookMe()
+    {
+        bookTime = bookTime.Add(new TimeSpan(0, 30, 0));
+        selectedTime4 = new LocalTime(bookTime.Hours, bookTime.Minutes, bookTime.Seconds);
+        StateHasChanged();
+        Message = "Some bookings available at this time.";
+        int count = 0;
+        if (BookingCounts.Keys.Contains<TimeSpan>(bookTime))
+        {
+            count = BookingCounts[bookTime];
+        }
+        visible4 = false;
+        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
+        if (showCount == 0)
+            Message = "No bookings available at this time.";
+
+        /*
+        if (AthsEssGymBook.Shared.Settings.MaxNumberInRoom < 4)
+        {
+            BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today, LoggegInAthlete.Id);
+        }
+        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - BookingCounts[bookTime];
+        datePicker2Visible = false;
+        visible4 = false;*/
+    }
+
+    void focussed2(FocusEventArgs e)
+    {
+        datePicker2Visible = true;
+        visible4 = false;
+    }
+
+
+    async Task selected2(LocalDate localDate)
+    {
+        bookDate = new DateTime(localDate.Year, localDate.Month, localDate.Day);
+        System.Diagnostics.Debug.WriteLine(bookDate);
+        Message = "";
+        if (bookDate >= DateTime.Today)
+        {
+            Bookingdate = localDate;
+            ThisDate = localDate.ToString();
+            datePicker2Visible = false;
+            StateHasChanged();
+            visible4 = true;
+            BookingCounts = await BookingsClient.GetBookingCountForDay(bookDate, LoggegInAthlete.Id);
+
+            CheckAvailability();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void focussed4()
+    {
+        visible4 = true;
+        datePicker2Visible = false;
+    }
+
+    void changed4(LocalTime time)
+    {
+        bookTime = new TimeSpan(time.Hour, time.Minute, 0);
+        selectedTime4 = time;
+        StateHasChanged();
+        Message = "";
+        int count = 0;
+        if (BookingCounts.Keys.Contains<TimeSpan>(bookTime))
+        {
+            count = BookingCounts[bookTime];
+        }
+        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
+        if (showCount == 0)
+            Message = "No bookings available at this time.";
+    }
+}
+
+
 
 

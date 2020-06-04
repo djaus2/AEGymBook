@@ -125,7 +125,7 @@ namespace AthsEssGymBook.Client.Services
                     int count = spots.Count();
                     if (count != 0)
                     {
-                        dict.Add(new TimeSpan(0, time * 30, 0), count);
+                        dict[new TimeSpan(0, time * 30, 0)]=  count;
                         System.Diagnostics.Debug.WriteLine("{0} {1}",time, count);
                     }
                 }
