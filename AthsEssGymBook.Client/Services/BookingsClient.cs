@@ -21,6 +21,7 @@ namespace AthsEssGymBook.Client.Services
         {
             this.client = client;
         }
+        //select Count(*) from BookingInfo where   _Date == "2020-05-04"
 
         public async Task<List<BookingInfo>> GetBookingList(int Id = 0)
         {
@@ -86,6 +87,56 @@ namespace AthsEssGymBook.Client.Services
             }
 
             return bookingsQ;
+        }
+
+        //select Count(*) from BookingInfo where   _Date == "2020-05-04"
+        //public async Task<int> CountBookings(DateTime date, int Id = 0)
+        //{
+        //    var bookings = new BookingInfo[0];
+        //    var bookingsQ = new List<BookingInfo>();
+        //    try
+        //    {
+        //        bookings = await GetBookings(Id);
+        //        var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+        //        bookingsQ.AddRange(books);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine(ex.Message);
+        //        System.Diagnostics.Debug.WriteLine(ex.InnerException);
+        //    }
+
+        //    return 0; 
+        //}
+
+        public async Task<Dictionary<TimeSpan,int>> GetBookingCountForDay(DateTime date, int Id)
+        {
+            Dictionary<TimeSpan, int> dict = new Dictionary<TimeSpan, int>();
+            var bookings = new BookingInfo[0];
+            var bookingsQ = new List<BookingInfo>();
+            try
+            {
+                bookings = await GetBookings(Id);
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+                int[] times = books.AsEnumerable().Select(s => s._Time).ToArray<int>();
+                foreach (var time in times)
+                {
+                    var spots = from t in books where t._Time == time select t;
+                    int count = spots.Count();
+                    if (count != 0)
+                    {
+                        dict.Add(new TimeSpan(0, time * 30, 0), count);
+                        System.Diagnostics.Debug.WriteLine("{0} {1}",time, count);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return dict;
         }
 
 

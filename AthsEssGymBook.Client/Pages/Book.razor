@@ -10,7 +10,8 @@
 <AuthorizeView>
     <Authorized>
         <h3>Make a Gym Booking</h3>
-        <h3>Hello @context.User.Identity.Name !!!!</h3>
+        <h3>Hello @context.User.Identity.Name !!!!</h3
+        <p>@Message</p>
 
         <p>Click here to choose the <b><i>>Booking Date:</i></b></p>
         <input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" />
@@ -37,7 +38,7 @@
         <p>...</p>
         <p>...</p>
         <p>...</p>
-        <p>@Message</p>
+        
 
 
 
@@ -47,6 +48,7 @@
             List<BookingInfo> Bookings { get; set; }
             Athlete LoggegInAthlete { get; set; }
             List<Athlete> Athletes { get; set; }
+            Dictionary<TimeSpan, int> BookingCounts { get; set; }
 
             protected override async Task OnInitializedAsync()
             {
@@ -68,6 +70,7 @@
                 Bookings = await BookingsClient.GetBookingList();
                 //var wwdwd = await BookingsClient.GetBooking(1);
                 //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
+                BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today, LoggegInAthlete.Id);
             }
             int currentCount = Settings.MaxNumberInRoom;
             int showCount = 0;
@@ -113,20 +116,32 @@
                 info.Slot = 5-currentCount;
                 info.Date = bookDate;
                 System.Diagnostics.Debug.WriteLine(info.Date);
-   
+
                 info.Time = bookTime;
                 info._Duration = 2;
-                try
+                int count = 0;
+                if (BookingCounts.Keys.Contains<TimeSpan>(info.Time))
                 {
-                    //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
-                    //await Http.PostAsJsonAsync("api/BookingInfos", info);
-                    await BookingsClient.AddBooking(info);
-
-                } catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                    System.Diagnostics.Debug.WriteLine(ex.InnerException);
+                    count = BookingCounts[info.Time];
                 }
+                if (count < AthsEssGymBook.Shared.Settings.MaxBookUnits)
+                {
+                    try
+                    {
+                        //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
+                        //await Http.PostAsJsonAsync("api/BookingInfos", info);
+                        await BookingsClient.AddBooking(info);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex.Message);
+                        System.Diagnostics.Debug.WriteLine(ex.InnerException);
+                    }
+                    Message = "Booked";
+                }
+                else
+                    Message = "Not available";
 
             }
 
@@ -148,10 +163,10 @@
             }
 
 
-            void selected2(LocalDate localDate)
+            async Task selected2(LocalDate localDate)
             {
                 bookDate = new DateTime(localDate.Year, localDate.Month, localDate.Day);
-                 System.Diagnostics.Debug.WriteLine(bookDate);
+                System.Diagnostics.Debug.WriteLine(bookDate);
                 Message = "";
                 if (bookDate >= DateTime.Today)
                 {
@@ -160,6 +175,7 @@
                     datePicker2Visible = false;
                     StateHasChanged();
                     visible4 = true;
+                    BookingCounts = await BookingsClient.GetBookingCountForDay(bookDate, LoggegInAthlete.Id);
 
                     CheckAvailability();
                 }
