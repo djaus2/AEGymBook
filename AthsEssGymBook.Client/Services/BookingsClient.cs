@@ -126,7 +126,6 @@ namespace AthsEssGymBook.Client.Services
                     if (count != 0)
                     {
                         dict[new TimeSpan(0, time * 30, 0)]=  count;
-                        System.Diagnostics.Debug.WriteLine("{0} {1}",time, count);
                     }
                 }
             }
