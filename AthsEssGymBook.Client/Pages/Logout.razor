@@ -21,7 +21,14 @@
     [CascadingParameter]
     Task<AuthenticationState> AuthenticationState { get; set; }
 
-    async Task LogoutClick()
+    protected override async Task OnInitializedAsync()
+    {
+        //context = await authStateProvider.GetAuthenticationStateAsync();
+        await authStateProvider.Logout();
+        navigationManager.NavigateTo("/login");
+    }
+
+    protected async Task LogoutClick()
     {
         await authStateProvider.Logout();
         navigationManager.NavigateTo("/login");

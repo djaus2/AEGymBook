@@ -42,14 +42,27 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="logout">
-                <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+            <NavLink class="nav-link" href="Logout">
+                <span class="oi oi-elevator" aria-hidden="true"></span> Logout
             </NavLink>
         </li>
+        @if (context.User.Identity.Name == "djaus")
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Admin
+                </NavLink>
+            </li>
+        }
     </ul>
 </div>
 
 @functions {
+    AuthenticationState context { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        context = await authStateProvider.GetAuthenticationStateAsync();
+    }
     bool collapseNavMenu = true;
 
     string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -67,4 +80,4 @@
         await authStateProvider.Logout();
         navigationManager.NavigateTo("/login");
     }
-}
+    }
