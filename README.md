@@ -1,12 +1,17 @@
 Athletics Essendon Gym Bookings app 
 ------------------------------------
 
+Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)  
+
+My Blog Posts on this _(3 thus far)_: [At http://www.sportronics.com.au](http://www.sportronics.com.au/search.html?query=gym+book)
+
+## About
 A sample project showcasing a Blazor.  
 An app using Enity Framework Core, C#, .NET Core etc.
 Uses  with identity based upon the *Blazor with Identity* sample project:  
-<https://github.com/stavroskasidis/BlazorWithIdentity>
+<https://github.com/stavroskasidis/BlazorWithIdentity>  
 Also uses the date time picker from:  
-<https://github.com/nheath99/NodaTimePicker/tree/master/src/NodaTimePicker.Demo/Pages>
+<https://github.com/nheath99/NodaTimePicker/tree/master/src/NodaTimePicker.Demo/Pages>  
 
 ## App Requirements
 The app is a Booking App to manage bookings for a club Gym.  
@@ -16,11 +21,8 @@ Given the CV-19 pandemic, the gym needs to limit the number (4) of participants 
   - Users find available time slots and book up to the limit at that time (i.e. 4)
     - Also un-book
     - Of course bookings only forward in date-time.
-
-Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)
-Also live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites.net)
-
-My Blog Posts on this _(3 thus far)_: [At http://www.sportronics.com.au](http://www.sportronics.com.au/search.html?query=gym+book)
+  
+Live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites.net)
 
 ### Status
 - Uses SQLite
