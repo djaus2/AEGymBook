@@ -1,0 +1,41 @@
+﻿@page "/Forgotpwd"
+@layout LoginLayout
+@inject NavigationManager navigationManager
+@inject IdentityAuthenticationStateProvider authStateProvider
+
+<h3>Hey, you forgot your password!</h3>
+
+<h4>Sorry but this facility hasn't been enabled yet.</h4>
+<br />
+
+<div>
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <div class="main">
+                <div class="content px-4">
+                    <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@LoginClick">Login</button>
+                </div>
+            </div>
+        </li>
+        <li class="nav-item px-3">
+            <div class="main">
+                <div class="content px-4">
+                    <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@RegisterClick">Register</button>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+
+@functions{
+    protected void  LoginClick()
+    {
+        navigationManager.NavigateTo("/login");
+    }
+    protected void  RegisterClick()
+    {
+        navigationManager.NavigateTo("/register");
+    }
+}

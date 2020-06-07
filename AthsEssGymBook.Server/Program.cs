@@ -8,9 +8,6 @@ namespace AthsEssGymBook.Server
     {
         public static void Main(string[] args)
         {
-            System.Diagnostics.Debug.WriteLine("ss=======================================");
-            System.Diagnostics.Debug.WriteLine(args.Length);
-            System.Diagnostics.Debug.WriteLine("ss=======================================");
             BuildWebHost(args).Run();
         }
 

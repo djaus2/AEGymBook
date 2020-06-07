@@ -23,11 +23,6 @@ namespace AthsEssGymBook.Client
             builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
             builder.Services.AddScoped<IAuthorizeApi, AuthorizeApi>();
 
-            System.Diagnostics.Debug.WriteLine("=======================================");
-            System.Diagnostics.Debug.WriteLine(args.Length);
-            System.Diagnostics.Debug.WriteLine(builder.HostEnvironment.BaseAddress);
-            System.Diagnostics.Debug.WriteLine("=======================================");
-
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             builder.Services.AddHttpClient<Services.WeatherForecastClient>(client =>
