@@ -50,3 +50,4 @@ Live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites
 - Put settings in DB and allow Admin to change online.
 - Implement I forgot pwd. Further no email capability yet.
 - Social Media Logins
+- Cache booking data in Client. Currently refreshes with each page change.
