@@ -42,7 +42,7 @@ Live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites
 - App settings static class _**Done**_
 
 ### 2Dos
-- Fix booking bugs for non Today bookings. _**Done**_
+- Fix booking bugs for non Today bookings.
 - Add Admin functions to Admin page (See list on that page).
 - Map allowed booking times.
 - Enable roles: athlete,coach,has pass,admin
