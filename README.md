@@ -6,7 +6,7 @@ Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)
 My Blog Posts on this _(3 thus far)_: [At http://www.sportronics.com.au](http://www.sportronics.com.au/search.html?query=gym+book)
 
 ## About
-A sample project showcasing a Blazor.  
+A sample project showcasing Blazor WebApps.  
 An app using Enity Framework Core, C#, .NET Core etc.
 Uses  with identity based upon the *Blazor with Identity* sample project:  
 <https://github.com/stavroskasidis/BlazorWithIdentity>  
@@ -42,10 +42,11 @@ Live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites
 - App settings static class _**Done**_
 
 ### 2Dos
-- Fix booking bugs for non Today bookings.
+- Fix booking bugs for non Today bookings. _**Done**_
 - Add Admin functions to Admin page (See list on that page).
 - Map allowed booking times.
 - Enable roles: athlete,coach,has pass,admin
-- Table layout issue for buttons, only: Currently uses full screen.
+- Table layout issue for buttons, only: Currently uses full screen. _**Largely one**_
 - Put settings in DB and allow Admin to change online.
 - Implement I forgot pwd. Further no email capability yet.
+- Social Media Logins

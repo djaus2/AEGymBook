@@ -18,6 +18,17 @@ a, .btn-link2 {
     border-color: #000000;
 }
 
+table2 {
+    table-layout: fixed;
+    width: 1000px;
+}
+
+button {
+    width: 100px;
+    height: 30px;
+}
+
+
 
 
 app {

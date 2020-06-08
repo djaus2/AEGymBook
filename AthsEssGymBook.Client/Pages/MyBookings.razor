@@ -9,38 +9,42 @@
 
 <AuthorizeView>
     <Authorized>
-        <h3>Show Gym Bookings</h3>
+        <h3>Show My Gym Bookings</h3>
         <h3>Hello @context.User.Identity.Name !!!!</h3>
 
         <p>Click here to choose the <b><i>Booking Date</i></b> to show.</p>
-        <DatePicker Visible="datePicker2Visible" OnSelected="selected2" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
-        <table class="table" >
+        <table class="table2">
             <tbody>
-            <tr width="100px">
-                <td colspan="3"><input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" /></td>
-                <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
-            </tr>
-            <tr width="100px">
-                <td><b>Show Date:</b></td>
-                <td><button class="btn btn-primary" @onclick="@Selected">Selected</button></td>
-                <td><button class="btn btn-primary" @onclick="@FromSelected">From</button></td>
-                <td><button class="btn btn-primary" @onclick="@ShowAll">All</button></td>
+                <tr>
+                    <td colspan="3">
+                        <input id="Date" value=@ThisDate type="text" @onfocus="@DateFocused" />
+                        <DatePicker Visible="DatePickerVisible" OnSelected="LocaDateSelected" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+                    </td>
 
-            </tr>
-            <tr width="100px">
-                <td><b>Show Week:</b></td>
-                <td><button class="btn btn-primary" @onclick="@PreviousWeek">Prev</button></td>
-                <td><button class="btn btn-primary" @onclick="@SelectedWeek">Selected</button></td>
-                <td><button class="btn btn-primary" @onclick="@NextWeek">Next</button></td>
-            </tr>
+                    <td><button class="btn btn-primary" @onclick="@ShowAll">&nbsp;&nbsp;&nbsp;All&nbsp;&nbsp;&nbsp;</button></td>
+                </tr>
+                <tr>
+                    <td><b>Show Date:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@ShowToday">&nbsp;&nbspToday&nbsp;&nbsp</button></td>
+                    <td><button class="btn btn-primary" @onclick="@Selected">Selected</button></td>
+                    <td><button class="btn btn-primary" @onclick="@FromSelected">&nbsp;&nbsp;From&nbsp;&nbsp;</button></td>
+
+
+                </tr>
+                <tr >
+                    <td><b>Show Week:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@PreviousWeek">&nbsp;&nbsp;Prev&nbsp;&nbsp;</button></td>
+                    <td><button class="btn btn-primary" @onclick="@SelectedWeek">Selected</button></td>
+                    <td><button class="btn btn-primary" @onclick="@NextWeek">&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;</button></td>
+                </tr>
             </tbody>
         </table>
 
 
 
-        @if (Bookings == null)
+        @if (MyBookingz == null)
         {
-            <p><em>Loading...</em></p>
+            <p><em>Please wait. Loading...</em></p>
         }
         else
         {
@@ -56,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var booking in Bookings)
+                    @foreach (var booking in MyBookingz)
                     {
                         <tr>
                             <td>@booking.Id</td>
@@ -71,128 +75,136 @@
             </table>
         }
 
+    </Authorized>
+    <Authorizing>
+        <h1>Please wait. Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>
 
 
         @functions {
 
             AuthenticationState context { get; set; }
-            List<BookingInfo> Bookings { get; set; }
+            List<BookingInfo> MyBookingz { get; set; }
             Athlete LoggegInAthlete { get; set; }
             List<Athlete> Athletes { get; set; }
 
+            Dictionary<TimeSpan, int> BookingCounts { get; set; }
+            List<TimeSpan> MyBookingTimes { get; set; } = new List<TimeSpan>();
+
+            LocalDate Today = new LocalDate(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+
+            int currentCount = Settings.MaxNumberInRoom;
+            int showCount = 0;
+            string Message = "Info";
+
+            bool DatePickerVisible = false;
+            bool TimePickerVisible = false;
+
+
+            LocalDate BookingDate_Local;  // = System.DateTime.Today;
+            string ThisDate = System.DateTime.Today.ToString("D");
+
+            DateTime BookingDate_DT = DateTime.Today;
+
+
+            async Task RefreshData()
+            {
+                MyBookingz = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
+                BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today);
+                MyBookingTimes = await BookingsClient.GetMyBookingsForDay(DateTime.Today, LoggegInAthlete.Id);
+            }
             protected override async Task OnInitializedAsync()
             {
+                string ThisDate = System.DateTime.Today.ToString("D");
+                BookingDate_DT = DateTime.Today;
 
                 context = await authStateProvider.GetAuthenticationStateAsync();
                 string name = context.User.Identity.Name;
                 var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
                 Athletes = vathletes.ToList<Athlete>();
-                //string id2 = "137";
-                // LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{id2}");
-
                 LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
-
-                //var vBookings = await Http.GetFromJsonAsync<BookingInfo[]>($"api/BookingInfos/");
-                //Bookings = vBookings.ToList<BookingInfo>();
-                //int id = 1;
-                //var vBooking = await Http.GetFromJsonAsync<BookingInfo>($"api/BookingInfos/{id}");
-
-                Bookings = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
-                //var wwdwd = await BookingsClient.GetBooking(1);
-                //var dwedwedfef = await BookingsClient.GetBookings(DateTime.Today);
+                await RefreshData();
             }
 
 
-            bool datePicker2Visible = false;
-            string ThisDate = System.DateTime.Today.ToString("D");
-            DateTime BookingDateDT = DateTime.Today;
-
-            LocalDate Bookingdate;  // = System.DateTime.Today;
-
-            DateTime bookDate;
-            TimeSpan bookTime;
-            LocalTime selectedTime4;
-
-            void focussed2(FocusEventArgs e)
+            void DateFocused(FocusEventArgs e)
             {
-                datePicker2Visible = true;
+                DatePickerVisible = true;
             }
 
-            async Task selected2(LocalDate localDate)
+            async Task LocaDateSelected(LocalDate localDate)
             {
-                BookingDateDT = new DateTime(localDate.Year, localDate.Month, localDate.Day);
-                Bookingdate = localDate;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookings(BookingDateDT, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = new DateTime(localDate.Year, localDate.Month, localDate.Day);
+                BookingDate_Local = localDate;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookings(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
+                StateHasChanged();
             }
 
             async Task ShowToday()
             {
-                BookingDateDT = DateTime.Today;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookings(BookingDateDT, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = DateTime.Today;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookings(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
             async Task Selected()
             {
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookings(BookingDateDT, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookings(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
             async Task ShowAll()
             {
-                BookingDateDT = DateTime.Today;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = DateTime.Today;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
             async Task FromSelected()
             {
 
-                bookDate = BookingDateDT;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookingsFrom(bookDate, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = BookingDate_DT;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookingsFrom(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
             async Task SelectedWeek()
             {
 
-                bookDate = BookingDateDT;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = BookingDate_DT;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookingsSelectedWeek(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
             async Task NextWeek()
             {
-                BookingDateDT = BookingDateDT.Add(new TimeSpan(7, 0, 0, 0, 0));
-                bookDate = BookingDateDT;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = BookingDate_DT.Add(new TimeSpan(7, 0, 0, 0, 0));
+                BookingDate_DT= BookingDate_DT;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookingsSelectedWeek(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
             async Task PreviousWeek()
             {
-                BookingDateDT = BookingDateDT.Subtract(new TimeSpan(7, 0, 0, 0, 0));
-                bookDate = BookingDateDT;
-                ThisDate = BookingDateDT.ToString("D");
-                Bookings = await BookingsClient.GetBookingsSelectedWeek(bookDate, LoggegInAthlete.Id);
-                datePicker2Visible = false;
+                BookingDate_DT = BookingDate_DT.Subtract(new TimeSpan(7, 0, 0, 0, 0));
+                BookingDate_DT = BookingDate_DT;
+                ThisDate = BookingDate_DT.ToString("D");
+                MyBookingz = await BookingsClient.GetBookingsSelectedWeek(BookingDate_DT, LoggegInAthlete.Id);
+                DatePickerVisible = false;
             }
 
 
         }
 
-    </Authorized>
-    <Authorizing>
-        <h1>Loading ...</h1>
-    </Authorizing>
-</AuthorizeView>
+
 
 
