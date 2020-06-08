@@ -17,7 +17,7 @@
         </h3>
         <p>@Message</p>
 
-        <p>Click here to choose the <b><i>>Booking Date:</i></b></p>
+        <p>Click here to choose the <b><i>Booking Date:</i></b></p>
         <input id="Date" value=@ThisDate type="text" @onfocus="@focussed2" />
         <DatePicker Visible="datePicker2Visible" OnSelected="selected2" MinDate="@Today" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
 
@@ -44,7 +44,7 @@
         <p>...</p>
     </Authorized>
     <Authorizing>
-        <h1>Loading ...</h1>
+        <h1>Please wait. Loading ...</h1>
     </Authorizing>
 </AuthorizeView>
 

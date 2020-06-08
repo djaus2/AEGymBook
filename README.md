@@ -1,33 +1,28 @@
 Athletics Essendon Gym Bookings app 
 ------------------------------------
 
-A sample project showcasing a blazor app using ef core with identity based upon
-*Blazor with Identity* project.  
-Started with the ToDo Blazor sample, by changing the colors to Red and Black! Essendon's Colors.
+Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)  
 
-<https://github.com/stavroskasidis/BlazorWithIdentity>
+My Blog Posts on this _(3 thus far)_: [At http://www.sportronics.com.au](http://www.sportronics.com.au/search.html?query=gym+book)
 
-Uses date time picker from
-<https://github.com/nheath99/NodaTimePicker/tree/master/src/NodaTimePicker.Demo/Pages>
+## About
+A sample project showcasing a Blazor.  
+An app using Enity Framework Core, C#, .NET Core etc.
+Uses  with identity based upon the *Blazor with Identity* sample project:  
+<https://github.com/stavroskasidis/BlazorWithIdentity>  
+Also uses the date time picker from:  
+<https://github.com/nheath99/NodaTimePicker/tree/master/src/NodaTimePicker.Demo/Pages>  
 
-### How to run
-
-Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)
-
-1.  Install
-    [dotnet-sdk-3.1.300](https://dotnet.microsoft.com/download/dotnet-core/3.1)
-    and the latest [Visual Studio 2019](https://visualstudio.microsoft.com/vs/).
-
-2.  Clone or download.
-
-3.  Open the solution in Visual Studio and press F5.
-
-4.  Create a user using the `Create Account` button in the login page or login
-    if you have already created a user.
-
-### Also Live demo for BlazorWithIdenity:
-
-https://blazorwithidentity.azurewebsites.net/
+## App Requirements
+The app is a Booking App to manage bookings for a club Gym.  
+Given the CV-19 pandemic, the gym needs to limit the number (4) of participants at a time.
+  - Logged in users can view all previous bookings, and filter date-time
+  - Users can view their bookings, and filter date-time
+  - Users find available time slots and book up to the limit at that time (i.e. 4)
+    - Also un-book
+    - Of course bookings only forward in date-time.
+  
+Live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites.net)
 
 ### Status
 - Uses SQLite
@@ -44,6 +39,7 @@ https://blazorwithidentity.azurewebsites.net/
 - Mechanism for user to delete their bookings. _**Done**_
 - Set Min day to book as Today.  _**Done**_
 - Add Admin page and restrict who it shows to. _**Done**
+- App settings static class _**Done**_
 
 ### 2Dos
 - Fix booking bugs for non Today bookings.
@@ -51,3 +47,5 @@ https://blazorwithidentity.azurewebsites.net/
 - Map allowed booking times.
 - Enable roles: athlete,coach,has pass,admin
 - Table layout issue for buttons, only: Currently uses full screen.
+- Put settings in DB and allow Admin to change online.
+- Implement I forgot pwd. Further no email capability yet.
