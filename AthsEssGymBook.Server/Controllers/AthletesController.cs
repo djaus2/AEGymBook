@@ -33,7 +33,6 @@ namespace AthsEssGymBook.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Athlete>>> GetAthletes()
         {
-            System.Diagnostics.Debug.WriteLine("==GetAthletes==");
             return await _context.Athletes.ToListAsync();
         }
 
@@ -62,7 +61,6 @@ namespace AthsEssGymBook.Server.Controllers
 
          }
         #endregion
-
 
         #region snippet_Update
         // PUT: api/Athletes/5

@@ -84,7 +84,6 @@ namespace AthsEssGymBook.Server.Controllers
         }
         #endregion
 
- 
         public Athlete getAthlete(string name)
         {
             Athlete Athlete;

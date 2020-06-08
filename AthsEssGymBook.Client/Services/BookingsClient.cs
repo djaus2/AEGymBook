@@ -21,8 +21,6 @@ namespace AthsEssGymBook.Client.Services
         {
             this.client = client;
         }
-        //select Count(*) from BookingInfo where   _Date == "2020-05-04"
-
 
         public async Task<List<BookingInfo>> GetBookingList(int Id = 0)
         {
@@ -46,7 +44,6 @@ namespace AthsEssGymBook.Client.Services
             var books2 = bookings.OrderByDescending(b => b.Date).ThenBy(b => b.Time);
             return books2.ToList<BookingInfo>();
         }
-
 
         public async Task<BookingInfo[]> GetBookings(int Id = 0)
         {
@@ -150,7 +147,6 @@ namespace AthsEssGymBook.Client.Services
 
             return dict;
         }
-
 
         public async Task<List<BookingInfo>> GetBookingsFrom(DateTime date, int Id = 0)
         {

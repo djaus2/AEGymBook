@@ -59,22 +59,4 @@ namespace AthsEssGymBook.Shared
         public bool IsCoach { get; set; } = false;
 
     }
-
-    public class UserInfo2
-    {
-        public int Id { get; set; }
-        //public bool IsAuthenticated { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-
-        public bool HasAccessCard { get; set; } = false;
-        public bool IsCoach { get; set; } = false;
-        public bool IsAdmin { get; set; } = false;
-
-        public UserInfo2()
-        {
-
-        }
-    }
 }
