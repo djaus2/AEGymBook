@@ -125,6 +125,7 @@
                 Athletes = vathletes.ToList<Athlete>();
                 LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
                 await RefreshData();
+                StateHasChanged();
             }
 
 

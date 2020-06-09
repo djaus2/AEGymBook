@@ -18,12 +18,12 @@
         <p>@Message</p>
 
         <p>Click here to choose the <b><i>Booking Date:</i></b></p>
-        <input id="Date" value=@ThisDate type="text" @onfocus="@DateFocused" />
+        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
         <DatePicker Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
 
         <p></p>
         <p>Click here to set the <b><i>Booking Start Time:</i></b></p>
-        <input type="text" @onfocus=@focussed4 value=@BookTime_TS />
+        <input type="text" @onfocus=@TimePickerFocused value=@BookTime_TS />
         <TimePicker  MinuteStep="30" Visible=TimePickerVisible OnSelectedTimeChanged=@LocalTimeChanged ShowClose=true CloseOnSelect=true SelectedTime=@BookTime_Local />
 
         <p></p>
@@ -60,7 +60,7 @@
     Dictionary<TimeSpan, int> BookingCounts { get; set; }
     List<TimeSpan> MyBookingTimes { get; set; } = new List<TimeSpan>();
 
-    LocalDate Today = new LocalDate(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+    LocalDate Today;
 
     int currentCount = Settings.MaxNumberInRoom;
     int showCount = 0;
@@ -70,51 +70,58 @@
     bool TimePickerVisible = false;
 
 
-    LocalDate BookingDate_Local;  // = System.DateTime.Today;
-    string ThisDate = System.DateTime.Today.ToString("D");
-
-    DateTime BookingDate_DT = DateTime.Today;
-
-    TimeSpan BookTime_TS = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
-
-
+    LocalDate BookingDate_Local;
+    string ThisDate;
+    DateTime BookingDate_DT;
+    TimeSpan BookTime_TS;
     LocalTime BookTime_Local;
 
-    async Task RefreshData()
+    void UpdateAvailable(TimeSpan booktime_TS)
+    {
+        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom;
+        if (BookingCounts.Keys.Contains(booktime_TS))
+        {
+            showCount = showCount - BookingCounts[booktime_TS];
+        }
+        if (showCount == 0)
+            Message = "No bookings available at this time.";
+        else
+            Message = "Some bookings available at this time.";
+        StateHasChanged();
+    }
+
+    async Task RefreshData(DateTime bookingdate, TimeSpan booktime_TS)
+    {
+        ThisDate = bookingdate.ToString("D");
+        MyBookings = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
+        BookingCounts = await BookingsClient.GetBookingCountForDay(bookingdate);
+        MyBookingTimes = await BookingsClient.GetMyBookingsForDay(bookingdate, LoggegInAthlete.Id);
+        UpdateAvailable(booktime_TS);
+    }
+
+    async Task RefreshMyData(DateTime bookingdate, TimeSpan booktime_TS)
     {
         MyBookings = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
-        BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today);
-        MyBookingTimes = await BookingsClient.GetMyBookingsForDay(DateTime.Today, LoggegInAthlete.Id);
+        await RefreshData(BookingDate_DT, BookTime_TS);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        string ThisDate = System.DateTime.Today.ToString("D");
+
         BookingDate_DT = DateTime.Today;
+        BookTime_TS = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+        BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
 
         context = await authStateProvider.GetAuthenticationStateAsync();
         string name = context.User.Identity.Name;
         var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
         Athletes = vathletes.ToList<Athlete>();
-
-
         LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
-
-
-        await RefreshData();
-
-        BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
         StateHasChanged();
         TimePickerVisible = false;
-        int count = 0;
-        if (BookingCounts.Keys.Contains<TimeSpan>(BookTime_TS))
-        {
-            count = BookingCounts[BookTime_TS];
-        }
-        Message = "Some bookings available at this time.";
-        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
-        if (showCount == 0)
-            Message = "No bookings available at this time.";
+
+        await RefreshMyData(BookingDate_DT,BookTime_TS);
     }
 
 
@@ -123,18 +130,8 @@
         BookTime_TS = BookTime_TS.Subtract(new TimeSpan(0, 30, 0));
         BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
         StateHasChanged();
-        Message = "Some bookings available at this time.";
-        int count = 0;
-        var rt = BookingCounts.Keys;
-        bool tty = BookingCounts.Keys.Contains<TimeSpan>(BookTime_TS);
-        if (BookingCounts.Keys.Contains<TimeSpan>(BookTime_TS))
-        {
-            count = BookingCounts[BookTime_TS];
-        }
         TimePickerVisible = false;
-        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
-        if (showCount == 0)
-            Message = "No bookings available at this time.";
+        UpdateAvailable(BookTime_TS);
     }
 
     void NextTimeSlot()
@@ -142,16 +139,8 @@
         BookTime_TS = BookTime_TS.Add(new TimeSpan(0, 30, 0));
         BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
         StateHasChanged();
-        Message = "Some bookings available at this time.";
-        int count = 0;
-        if (BookingCounts.Keys.Contains<TimeSpan>(BookTime_TS))
-        {
-            count = BookingCounts[BookTime_TS];
-        }
         TimePickerVisible = false;
-        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
-        if (showCount == 0)
-            Message = "No bookings available at this time.";
+        UpdateAvailable(BookTime_TS);
     }
 
     async Task BookMe()
@@ -190,10 +179,8 @@
         {
             try
             {
-                //var bookings = Http.GetFromJsonAsync<BookingInfo>("api/BookingInfos");
-                //await Http.PostAsJsonAsync("api/BookingInfos", info);
                 await BookingsClient.AddBooking(info);
-                await RefreshData();
+                await RefreshMyData(BookingDate_DT, BookTime_TS);
             }
             catch (Exception ex)
             {
@@ -201,14 +188,6 @@
                 System.Diagnostics.Debug.WriteLine(ex.InnerException);
             }
             Message = $"Just booked you.";
-            showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom;
-            if (MyBookingTimes.Contains(info.Time))
-            {
-                showCount = showCount - BookingCounts[info.Time];
-                System.Diagnostics.Debug.WriteLine("===={0}====",showCount);
-            }
-            if (showCount == 0)
-                Message += " - No more bookings available at this time..";
         }
         else
         {
@@ -222,16 +201,14 @@
 
     async Task DeleteBooking(int id)
     {
-        var b = await BookingsClient.GetBooking(id);
         await BookingsClient.DeleteBooking(id);
-        BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today);
-        MyBookingTimes = await BookingsClient.GetMyBookingsForDay(DateTime.Today, LoggegInAthlete.Id);
-        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - BookingCounts[BookTime_TS];
+        await RefreshMyData(BookingDate_DT, BookTime_TS);
+        Message = "Booking Deleted";
         DatePickerVisible = false;
         TimePickerVisible = false;
     }
 
-    void DateFocused(FocusEventArgs e)
+    void DatePickerFocused(FocusEventArgs e)
     {
         DatePickerVisible = true;
         TimePickerVisible = false;
@@ -246,11 +223,10 @@
         if (BookingDate_DT >= DateTime.Today)
         {
             BookingDate_Local = localDate;
-            ThisDate = localDate.ToString();
             DatePickerVisible = false;
             StateHasChanged();
-            TimePickerVisible = true;
-            BookingCounts = await BookingsClient.GetBookingCountForDay(BookingDate_DT);
+            TimePickerVisible = false;
+            await RefreshData(BookingDate_DT, BookTime_TS);
         }
         else
         {
@@ -258,7 +234,7 @@
         }
     }
 
-    void focussed4()
+    void TimePickerFocused()
     {
         TimePickerVisible = true;
         DatePickerVisible = false;
@@ -269,15 +245,7 @@
         BookTime_TS = new TimeSpan(time.Hour, time.Minute, 0);
         BookTime_Local = time;
         StateHasChanged();
-        Message = "";
-        int count = 0;
-        if (BookingCounts.Keys.Contains<TimeSpan>(BookTime_TS))
-        {
-            count = BookingCounts[BookTime_TS];
-        }
-        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - count;
-        if (showCount == 0)
-            Message = "No bookings available at this time.";
+        UpdateAvailable(BookTime_TS);
     }
 
     async Task DeleteExistingBooking(int id)
@@ -286,8 +254,6 @@
         if (confirmed)
         {
             await DeleteBooking(id);
-            BookingCounts = await BookingsClient.GetBookingCountForDay(DateTime.Today);
-            await RefreshData();
         }
     }
 
