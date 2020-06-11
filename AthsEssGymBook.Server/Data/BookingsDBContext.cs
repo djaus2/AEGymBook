@@ -14,6 +14,7 @@ namespace AthsEssGymBook.Server.Data
     {
         public DbSet<Athlete> Athletes { get; set; }
         public DbSet<BookingInfo> BookingInfo { get; set; }
+        public DbSet<BookingSlot> BookingSlots { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

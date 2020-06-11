@@ -5,34 +5,63 @@
 @inject HttpClient Http
 @inject IdentityAuthenticationStateProvider authStateProvider
 
+@inject Services.BookingSlotsClient _BookingSlotsClient
 @inject Services.BookingsClient BookingsClient
 
 @inject IJSRuntime JsRuntime
 
 <AuthorizeView>
     <Authorized>
-        <h3>Make a Gym Booking</h3>
-        <h3>
-            Hello @context.User.Identity.Name
-        </h3>
+        <h2>Athletics Essendon Gym Bookings</h2>
+        <h3><font color="blue">Make a Gym Booking</font></h3>
+        <h4>Hello @context.User.Identity.Name</h4>
+
         <p>@Message</p>
 
-        <p>Click here to choose the <b><i>Booking Date:</i></b></p>
-        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
-        <DatePicker Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+        Click here to choose the <b><i>Booking Date:</i></b><br />
 
-        <p></p>
-        <p>Click here to set the <b><i>Booking Start Time:</i></b></p>
-        <input type="text" @onfocus=@TimePickerFocused value=@BookTime_TS />
-        <TimePicker  MinuteStep="30" Visible=TimePickerVisible OnSelectedTimeChanged=@LocalTimeChanged ShowClose=true CloseOnSelect=true SelectedTime=@BookTime_Local />
+        <table class="table2">
+            <tbody>
+                <tr>
+                    <td colspan="3">
+                        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
+                        <DatePicker Style="opacity:1" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+                    </td>
+                    <td><button class="btn btn-primary" disabled="@IsDisabledDelete" @onclick="@DeleteBooking">Delete</button></td>
+                </tr>
+                <tr>
+                    <td><b>Date:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@PrevDay">Prev</button></td>
+                    <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
+                    <td><button class="btn btn-primary" @onclick="@NextDay">Next;</button></td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <p>&nbsp;</p>
+                        Click here to set the <b><i>Booking Time Slot:</i></b><br />
+                        <input type="text" @onfocus=@TimePickerFocused value=@BookTime_TS />
+                        <TimePicker MinuteStep="30" Visible=TimePickerVisible OnSelectedTimeChanged=@LocalTimeChanged ShowClose=true CloseOnSelect=true SelectedTime="BookTime_Local" />
+                    </td>>
+                </tr>
+                <tr>
+                    <td><b>Slot:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@PrevTimeSlot">Prev</button></td>
+                    <td><button class="btn btn-primary" disabled="@IsDisabled30" @onclick="@BookMe30">BOOK 30</button></td>
+                    <td><button class="btn btn-primary" @onclick="@NextTimeSlot">Next</button></td>
+                </tr>
+                <tr>
+                    <td><b>Longer Book:</b></td>
+                    <td><button id="min30" class="btn btn-primary" disabled="@IsDisabled60" @onclick="@BookMe60">1 hour</button></td>
+                    <td><button id="min60" class="btn btn-primary" disabled="@IsDisabled90" @onclick="@BookMe90">90 min</button></td>
+                    <td><button id="min90" class="btn btn-primary" disabled="@IsDisabled120" @onclick="@BookMe120">2 hours</button></td>
+                </tr>
+            </tbody>
+        </table>
 
-        <p></p>
-        <button class="btn btn-primary" @onclick="@PrevTimeSlot">Prev</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@BookMe">Book</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@NextTimeSlot">Next</button>
         <br />
         <br />
-        <p>Available Booking Slots: @showCount out of 4</p>
+        <p>Available Booking Slots: @showCountStrn out of 4</p>
+        <p>Next 1/2 hour: @showCount out of 4</p>
         <p>...</p>
         <p>...</p>
         <p>...</p>
@@ -52,50 +81,161 @@
 
 @functions {
 
-    AuthenticationState context { get; set; }
-    List<BookingInfo> MyBookings { get; set; }
-    Athlete LoggegInAthlete { get; set; }
-    List<Athlete> Athletes { get; set; }
+            AuthenticationState context { get; set; }
+            List<BookingInfo> MyBookings { get; set; }
+            BookingInfo MyBooking { get; set; }
+            Athlete LoggegInAthlete { get; set; }
+            List<BookingSlot> Slots = new List<BookingSlot>();
+            List<int> MySlotsIds = new List<int>();
 
-    Dictionary<TimeSpan, int> BookingCounts { get; set; }
-    List<TimeSpan> MyBookingTimes { get; set; } = new List<TimeSpan>();
+            BookingSlot Slot { get; set; }
 
-    LocalDate Today;
+            int currentCount = Settings.MaxNumberInRoom;
+            int showCount = 0;
+            string showCountStrn = "";
+            string Message = "Info";
 
-    int currentCount = Settings.MaxNumberInRoom;
-    int showCount = 0;
-    string Message = "Info";
+            bool DatePickerVisible = false;
+            bool TimePickerVisible = false;
 
-    bool DatePickerVisible = false;
-    bool TimePickerVisible = false;
+            DateTime Today_DT;
+            LocalDate Today_Local;
 
 
-    LocalDate BookingDate_Local;
-    string ThisDate;
-    DateTime BookingDate_DT;
-    TimeSpan BookTime_TS;
-    LocalTime BookTime_Local;
+            LocalDate BookingDate_Local;
+            string ThisDate;
+            DateTime BookingDate_DT;
+            TimeSpan BookTime_TS;
+            LocalTime BookTime_Local;
 
-    void UpdateAvailable(TimeSpan booktime_TS)
-    {
-        showCount = AthsEssGymBook.Shared.Settings.MaxNumberInRoom;
-        if (BookingCounts.Keys.Contains(booktime_TS))
-        {
-            showCount = showCount - BookingCounts[booktime_TS];
+            TimeSpan Increment;
+
+            async Task BookMe30()
+            {
+                await BookMe(1);
+            }
+
+            async Task BookMe60()
+            {
+                await BookMe(2);
+            }
+            async Task BookMe90()
+            {
+                await BookMe(3);
+            }
+            async Task BookMe120()
+            {
+                await BookMe(4);
+            }
+
+
+
+            bool IsDisabled30 = true;
+            bool IsDisabled60 = true;
+            bool IsDisabled90 = true;
+            bool IsDisabled120 = true;
+            bool IsDisabledDelete = true;
+
+
+
+            async Task ShowSlots()
+            {
+                Slots = await _BookingSlotsClient.GetSlotListFwd();
+                foreach (BookingSlot slot in Slots)
+                {
+                    DateTime date = slot.Date;
+                    TimeSpan time = slot.Time;
+
+                    var dayBookings = await BookingsClient.GetMyBookingsForDay(date, 0);
+                    slot.Count = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - dayBookings.Count(b => time == b);
+                }
+
+                var mySlotsIds = from slt in MyBookings select slt.Slots;
+                ////MySlotsIds = new List<int>{mySlotIds};
+            }
+
+            void UpdateAvailable(TimeSpan bookingTime_TS)
+            {
+                IsDisabled30 = true;
+                IsDisabled60 = true;
+                IsDisabled90 = true;
+                IsDisabled120 = true;
+                IsDisabledDelete = true;
+
+                var myBooking = from bk in MyBookings
+                                where (bk.Date == BookingDate_DT) && (bk.Time == BookTime_TS)
+                                select bk;
+                MyBooking = myBooking.FirstOrDefault<BookingInfo>();
+                if (MyBooking != null)
+                {
+                    IsDisabledDelete = false;
+                    Message = "You already have a booking at this time.";
+                    return;
+                } else
+                {
+                    showCount = -1;
+                    TimeSpan incr = new TimeSpan(0, 30, 0);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (i != 0)
+                            bookingTime_TS = bookingTime_TS.Add(incr);
+                        BookingSlot slot = (from slt in Slots where (slt.Date == BookingDate_DT) && (slt.Time == bookingTime_TS) select slt).FirstOrDefault<BookingSlot>();
+                        if (slot != null)
+                        {
+                            if (MySlotsIds.Contains(slot.Id))
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                switch (i)
+                                {
+                                    case 0:
+                                        Slot = slot;
+                                        showCount = Slot.Count;
+                                        IsDisabled30 = false;
+                                        break;
+                                    case 1:
+                                        IsDisabled60 = false;
+                                        break;
+                                    case 2:
+                                        IsDisabled90 = false;
+                                        break;
+                                    case 3:
+                                        IsDisabled120 = false;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+
+
+            if (showCount == 0)
+            {
+                showCountStrn = "0";
+                Message = "No bookings available at this time.";
+            }
+            else if (showCount == -1)
+            {
+                showCountStrn = "-";
+                Message = "This time slot isn't available.";
+            }
+            else
+            {
+                showCountStrn = $"{showCount}";
+                Message = "Some bookings available at this time.";
+            }
+            StateHasChanged();
         }
-        if (showCount == 0)
-            Message = "No bookings available at this time.";
-        else
-            Message = "Some bookings available at this time.";
-        StateHasChanged();
+
     }
 
     async Task RefreshData(DateTime bookingdate, TimeSpan booktime_TS)
     {
         ThisDate = bookingdate.ToString("D");
         MyBookings = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
-        BookingCounts = await BookingsClient.GetBookingCountForDay(bookingdate);
-        MyBookingTimes = await BookingsClient.GetMyBookingsForDay(bookingdate, LoggegInAthlete.Id);
         UpdateAvailable(booktime_TS);
     }
 
@@ -107,7 +247,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        Increment = new TimeSpan(0, AthsEssGymBook.Shared.Settings.TimeUnitMinutes, 0);
+        Today_DT = DateTime.Today;
+        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
         BookingDate_DT = DateTime.Today;
         BookTime_TS = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
         BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
@@ -115,15 +257,69 @@
 
         context = await authStateProvider.GetAuthenticationStateAsync();
         string name = context.User.Identity.Name;
-        var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
-        Athletes = vathletes.ToList<Athlete>();
+
         LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
         StateHasChanged();
         TimePickerVisible = false;
 
-        await RefreshMyData(BookingDate_DT,BookTime_TS);
+        await ShowSlots();
+
+        await RefreshMyData(BookingDate_DT, BookTime_TS);
     }
 
+    async Task PrevDay()
+    {
+        BookingDate_DT = BookingDate_DT.AddDays(-1);
+        Message = "";
+        if (BookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            StateHasChanged();
+            TimePickerVisible = false;
+            await RefreshData(BookingDate_DT, BookTime_TS);
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    async Task ShowToday()
+    {
+        BookingDate_DT = DateTime.Today;
+        Message = "";
+        if (BookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            StateHasChanged();
+            TimePickerVisible = false;
+            await RefreshData(BookingDate_DT, BookTime_TS);
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    async Task NextDay()
+    {
+        BookingDate_DT = BookingDate_DT.AddDays(1);
+        Message = "";
+        if (BookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            StateHasChanged();
+            TimePickerVisible = false;
+            await RefreshData(BookingDate_DT, BookTime_TS);
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
 
     void PrevTimeSlot()
     {
@@ -143,64 +339,105 @@
         UpdateAvailable(BookTime_TS);
     }
 
-    async Task BookMe()
+
+    BookingSlot GetSlotId(DateTime bookingDate_DT, TimeSpan bookingTime_TS)
+    {
+        var slot = from slt  in Slots where (slt.Date == bookingDate_DT ) && (slt.Time == bookingTime_TS) select slt;
+        if (slot.Count<BookingSlot>() == 0)
+        {
+            return null;
+        }
+        BookingSlot bs = slot.FirstOrDefault();
+        return bs;
+    }
+
+    async Task DeleteBooking()
+    {
+
+        //if (MyBooking != null)
+        //{
+        //    await DeleteExistingBooking(_id);
+        //}
+    }
+
+    async Task BookMe(int _duration)
     {
 
         showCount = currentCount;
         DatePickerVisible = false;
         TimePickerVisible = false;
 
-        BookingInfo info = new BookingInfo();
-        info.AthleteId = LoggegInAthlete.Id;
+        BookingInfo booking = new BookingInfo();
+        booking.AthleteId = LoggegInAthlete.Id;
+        booking._Duration = _duration;
 
-        info.Slot = 5 - currentCount;
-        info.Date = BookingDate_DT;
-        System.Diagnostics.Debug.WriteLine(info.Date);
+        // Provisionally reserve each required slot.
+        // Slots should be available when get here though.
+        // But check anyway.
+        // Might not be available because:
+        // - Slot not enabled
+        // - Slot fully booked
+        List<BookingSlot> slots = new List<BookingSlot>();
+        for (int i = 0; i < _duration; i++)
+        {
+            BookingSlot slot = GetSlotId(BookingDate_DT, BookTime_TS);
+            if (slot == null)
+            {
+                //Not available
+                Message = $"Time Slot not available {i}";
+                StateHasChanged();
+                // Undo reserved Booking Slots
+                foreach (BookingSlot _slot in slots)
+                {
+                    _slot.Count++;
+                }
+                break;
+            }
+            else if (slot.Count==0)
+            {
+                //Not available
+                Message = $"Time Slot fully booked {i}";
+                StateHasChanged();
+                // Undo reserved Booking Slots
+                foreach (var _slot in slots)
+                {
+                    _slot.Count++;
+                }
+                break;
+            }
+            // Reserve Booking Slot
+            slot.Count--;
+            slots.Add(slot);
+            booking.Slots.Add(slot.Id);
+        }
+        booking.Date = BookingDate_DT;
+        System.Diagnostics.Debug.WriteLine(booking.Date);
 
-        info.Time = BookTime_TS;
-        info._Duration = 2;
-        if (MyBookingTimes.Contains(info.Time))
+        booking.Time = BookTime_TS;
+
+        try
         {
-            if (!AthsEssGymBook.Shared.Settings.FORDEVONLY_User_Can_book_more_than_once_at_one_time)
-            {
-                Message = "You already have this booking!";
-                int id = (from b in MyBookings where b.Time == info.Time select b.Id).FirstOrDefault<int>();
-                System.Diagnostics.Debug.WriteLine("===={0}====",id);
-                await DeleteExistingBooking(id);
-                return;
-            }
-        }
-        int count = 0;
-        if (BookingCounts.Keys.Contains<TimeSpan>(info.Time))
-        {
-            count = BookingCounts[info.Time];
-        }
-        if (count < AthsEssGymBook.Shared.Settings.MaxNumberInRoom)
-        {
-            try
-            {
-                await BookingsClient.AddBooking(info);
-                await RefreshMyData(BookingDate_DT, BookTime_TS);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                System.Diagnostics.Debug.WriteLine(ex.InnerException);
-            }
+            await BookingsClient.AddBooking(booking);
+            //await RefreshMyData(BookingDate_DT, BookTime_TS);
             Message = $"Just booked you.";
         }
-        else
+        catch (Exception ex)
         {
-            Message = "No bookings available at this time.";
-            showCount = 0;
+            System.Diagnostics.Debug.WriteLine(ex.Message);
+            System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            Message = $"Booking failed.";
+            //foreach (var _slot in booking.Slots)
+            //{
+            //    _slot.Count++;
+            //}
         }
-
+        await ShowSlots();
+        await RefreshMyData(BookingDate_DT, BookTime_TS);
     }
-
-
 
     async Task DeleteBooking(int id)
     {
+        await ShowSlots();
         await BookingsClient.DeleteBooking(id);
         await RefreshMyData(BookingDate_DT, BookTime_TS);
         Message = "Booking Deleted";
@@ -213,7 +450,6 @@
         DatePickerVisible = true;
         TimePickerVisible = false;
     }
-
 
     async Task LocaDateSelected(LocalDate localDate)
     {

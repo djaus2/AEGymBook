@@ -1,33 +1,67 @@
 ﻿@page "/COVID-19"
-<h3>COVID-19</h3>
+@inject IdentityAuthenticationStateProvider authStateProvider
 
-<h4>Physical distancing in public means people:</h4>
+<h2>Athletics Essendon Gym Bookings</h2>
+<h3><font color="blue">COVID-19:</font></h3>
+<h4>Hello @context.User.Identity.Name</h4>
 
-<ul>
-    <li>keep 1.5 metres away from others wherever possible
-    </li>
-    <li>
-        avoid physical greetings such as handshaking, hugs and kisses
-    </li>
-    <li>
-        use tap and go instead of cash where possible
-    </li>
-    <li>
-        practise extra care if you are using public transport – read the guidelines (PDF, 165 KB).
-    </li>
-    <li>
-        avoid crowds – if you see a crowded space do not enter
-    </li>
-    <li>
-        avoid large public gatherings
-    </li>
-    <li>
-        practise good hygiene
-    </li>
-    <li>stay at home if you have any cold or flu symptoms. Seek medical advice and get tested for COVID-19
-        </li>
-</ul>
+<AuthorizeView>
+    <Authorized>
+        <h4>Physical distancing in public means people:</h4>
 
+        <ul>
+            <li>
+                COVID-19 infection control training. (Australian Government)
+                <a href="https://www.health.gov.au/resources/apps-and-tools/covid-19-infection-control-training"> here</a>
+            </li>
+            <li>
+                Return to play Athletics Victoria
+                <a href="https://athsvic.org.au/return-to-play-june-1-2020/">here</a>
+                <ul>
+                    <li>
+                        The actual document
+                        <a href="https://athsvic.org.au/wp-content/uploads/2020/06/Version-2.1-Return-to-Play-Athletics-Victoria-02062020-PUB.pdf"> here</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                COVID-19 Athletics Australia
+                <a href="https://www.athletics.com.au/the-stadium-covid-19/"> here</a>
+            </li>
+            <li>
+                keep 1.5 metres away from others wherever possible
+            </li>
+            <li>
+                avoid physical greetings such as handshaking, hugs and kisses
+            </li>
+            <li>
+                use tap and go instead of cash where possible
+            </li>
+            <li>
+                practise extra care if you are using public transport – read the guidelines (PDF, 165 KB).
+            </li>
+            <li>
+                avoid crowds – if you see a crowded space do not enter
+            </li>
+            <li>
+                avoid large public gatherings
+            </li>
+            <li>
+                practise good hygiene
+            </li>
+            <li>
+                stay at home if you have any cold or flu symptoms. Seek medical advice and get tested for COVID-19
+            </li>
+        </ul>
+    </Authorized>
+    <Authorizing>
+        <h1>Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>
 @code {
-
+    AuthenticationState context { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        context = await authStateProvider.GetAuthenticationStateAsync();
+    }
 }

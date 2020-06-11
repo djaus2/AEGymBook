@@ -27,6 +27,11 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
+            <NavLink class="nav-link" href="ListSlots">
+                <span class="oi oi-calendar" aria-hidden="true"></span> Time Sots
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
             <NavLink class="nav-link" href="MyBookings">
                 <span class="oi oi-bolt" aria-hidden="true"></span> My Bookings
             </NavLink>
@@ -46,7 +51,7 @@
                 <span class="oi oi-elevator" aria-hidden="true"></span> Logout
             </NavLink>
         </li>
-        @if (context.User.Identity.Name == "djaus")
+        @if (context.User.Identity.Name == @AdminName)
         {
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="admin">
@@ -58,6 +63,7 @@
 </div>
 
 @functions {
+    string AdminName = AthsEssGymBook.Shared.Settings.AdminName;
     AuthenticationState context { get; set; }
     protected override async Task OnInitializedAsync()
     {

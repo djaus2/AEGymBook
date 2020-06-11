@@ -181,7 +181,7 @@ namespace AthsEssGymBook.Server.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     AthleteId = table.Column<int>(nullable: false),
-                    Slot = table.Column<int>(nullable: false),
+                    SlotsSerialized = table.Column<string>(nullable: false),
                     _Date = table.Column<string>(nullable: false),
                     _Time = table.Column<int>(nullable: false),
                     _Duration = table.Column<int>(nullable: false)
@@ -196,6 +196,20 @@ namespace AthsEssGymBook.Server.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+            name: "BookingSlots",
+            columns: table => new
+            {
+                Id = table.Column<int>(nullable: false)
+                    .Annotation("Sqlite:Autoincrement", true),
+                _Date = table.Column<string>(nullable: false),
+                _Time = table.Column<int>(nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_BookingSlot", x => x.Id);
+            });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

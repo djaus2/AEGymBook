@@ -66,7 +66,7 @@ namespace AthsEssGymBook.Client.Services
                 bookings = book.ToArray<BookingInfo>();
             }
             var books2 = bookings.OrderByDescending(b => b.Date).ThenBy(b => b.Time);
-            return bookings;
+            return books2.ToArray<BookingInfo>();
         }
 
         public async Task<List<BookingInfo>> GetBookings(DateTime date,int Id = 0)

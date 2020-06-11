@@ -1,0 +1,308 @@
+﻿@page "/ListSlots"
+
+@using NodaTime;
+@using System;
+@using AthsEssGymBook.Shared
+@inject HttpClient Http
+@inject IdentityAuthenticationStateProvider authStateProvider
+
+@inject Services.BookingSlotsClient _BookingSlotsClient
+@inject Services.BookingsClient _BookingsClient
+
+<AuthorizeView>
+    <Authorized>
+        <h2>Athletics Essendon Gym Bookings</h2>
+        <h3><font color="blue">List Scheduled Timeslots</font></h3>
+        <h4>Hello @context.User.Identity.Name</h4>
+
+        <p>Click here to choose the <b><i>Booking Date</i></b> to show.</p>
+        <table class="table2">
+            <tbody>
+                <tr>
+                    <td colspan="4">
+                        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
+                        <DatePicker Style="opacity:100" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><button class="btn btn-primary" @onclick="@ShowFrom">From</button></td>
+                    <td align="right"><i><b>Refresh:&nbsp;</b></i></td>
+                    <td><button class="btn btn-primary" @onclick="@ShowSlots">Show All</button></td>
+                </tr>
+                <tr>
+                    <td><b>Date:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@PrevDay">Prev</button></td>
+                    <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
+                    <td><button class="btn btn-primary" @onclick="@NextDay">Next</button></td>
+                </tr>
+                <tr>
+                    <td><b>Week:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@PrevWeek">Prev</button></td>
+                    <td><button class="btn btn-primary" @onclick="@ThisWeek">Current</button></td>
+                    <td><button class="btn btn-primary" @onclick="@NextWeek">Next</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        @if (Slots == null)
+        {
+            <p><em>Please wait. Loading...</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>No. Available</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var slot in Slots)
+                    {
+                        <tr>
+                            <td>@slot.Id</td>
+                            <td>@slot._Date</td>
+                            <td>@slot.Time</td>
+                            <td>@slot.Count</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </Authorized>
+    <Authorizing>
+        <h1>Please wait. Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>
+
+@code {
+
+    string Message = "Info";
+
+    bool DatePickerVisible = false;
+    bool TimePickerVisible = false;
+
+    DateTime Today_DT;
+    LocalDate Today_Local;
+
+
+    LocalDate BookingDate_Local;
+    string ThisDate;
+    DateTime BookingDate_DT;
+
+    List<BookingSlot> AllSlots = new List<BookingSlot>();
+    List<BookingSlot> Slots = new List<BookingSlot>();
+
+
+    void UpdateDate()
+    {
+        ThisDate = BookingDate_DT.ToString("D");
+        StateHasChanged();
+    }
+
+    void UpdateData()
+    {
+
+        //var allSlots = await _BookingSlotsClient.GetSlotList();
+        UpdateDate();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Today_DT = DateTime.Today;
+        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
+        BookingDate_DT = DateTime.Today;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+
+        await ShowSlots();
+        UpdateData();
+    }
+
+    async Task ShowSlots()
+    {
+        AllSlots= await _BookingSlotsClient.GetSlotListFwd();
+        for (int i=0; i<AllSlots.Count;i++)
+        {
+            DateTime date = AllSlots[i].Date;
+            TimeSpan time = AllSlots[i].Time;
+
+            var dayBookings = await _BookingsClient.GetMyBookingsForDay(date, 0);
+            AllSlots[i].Count = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - dayBookings.Count(b => time == b);
+        }
+        Slots = AllSlots;
+        UpdateData();
+    }
+
+    #region Date and Time UI Handlers
+    /// UI Handlers /////////////////////////////////////////////////////////////////////////
+
+    void PrevWeek()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(-7);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+
+            int dayOfTheWeek = (int)BookingDate_DT.DayOfWeek;
+            DateTime startDate = BookingDate_DT.Subtract(new TimeSpan(dayOfTheWeek, 0, 0, 0, 0));
+            DateTime endDate = startDate.Add(new TimeSpan(8, 0, 0, 0, 0));
+            var slots = from b in AllSlots where (DateTime.Compare(b.Date, startDate) > 0) && (DateTime.Compare(b.Date, endDate) < 0) select b;
+
+            Slots = slots.ToList<BookingSlot>();
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void ThisWeek()
+    {
+        BookingDate_DT = DateTime.Today;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+        DatePickerVisible = false;
+        TimePickerVisible = false;
+
+        int dayOfTheWeek = (int)BookingDate_DT.DayOfWeek;
+        DateTime startDate = BookingDate_DT.Subtract(new TimeSpan(dayOfTheWeek, 0, 0, 0, 0));
+        DateTime endDate = startDate.Add(new TimeSpan(8, 0, 0, 0, 0));
+        var slots = from b in AllSlots where (DateTime.Compare(b.Date, startDate) > 0) && (DateTime.Compare(b.Date, endDate) < 0) select b;
+
+        Slots = slots.ToList<BookingSlot>();
+        UpdateDate();
+    }
+
+    void ShowFrom()
+    {
+
+        DatePickerVisible = false;
+        TimePickerVisible = false;
+
+        var slots = from b in AllSlots where DateTime.Compare(b.Date, BookingDate_DT) >= 0 select b;
+
+        Slots = slots.ToList<BookingSlot>();
+        UpdateDate();
+    }
+
+    void NextWeek()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(+7);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+
+            int dayOfTheWeek = (int)BookingDate_DT.DayOfWeek;
+            DateTime startDate = BookingDate_DT.Subtract(new TimeSpan(dayOfTheWeek, 0, 0, 0, 0));
+            DateTime endDate = startDate.Add(new TimeSpan(8, 0, 0, 0, 0));
+            var slots = from b in AllSlots where (DateTime.Compare(b.Date, startDate) > 0) && (DateTime.Compare(b.Date, endDate) < 0) select b;
+
+            Slots = slots.ToList<BookingSlot>();
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void PrevDay()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(-1);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            var slots = from sl in AllSlots where sl.Date == BookingDate_DT select sl;
+            Slots = slots.ToList<BookingSlot>();
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void ShowToday()
+    {
+        BookingDate_DT = DateTime.Today;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+        DatePickerVisible = false;
+        TimePickerVisible = false;
+        var slots = from sl in AllSlots where sl.Date == BookingDate_DT select sl;
+        Slots = slots.ToList<BookingSlot>();
+        UpdateDate();
+    }
+
+    void NextDay()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(1);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            StateHasChanged();
+            TimePickerVisible = false;
+            var slots = from sl in AllSlots where sl.Date == BookingDate_DT select sl;
+            Slots = slots.ToList<BookingSlot>();
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void DatePickerFocused(FocusEventArgs e)
+    {
+        DatePickerVisible = true;
+        TimePickerVisible = false;
+        StateHasChanged();
+    }
+
+    async Task LocaDateSelected(LocalDate localDate)
+    {
+        BookingDate_DT = new DateTime(localDate.Year, localDate.Month, localDate.Day);
+        System.Diagnostics.Debug.WriteLine(BookingDate_DT);
+        Message = "";
+        if (BookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_Local = localDate;
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            var slots = from sl in AllSlots where sl.Date == BookingDate_DT select sl;
+            Slots = slots.ToList<BookingSlot>();
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+
+
+    #endregion
+
+}
+
+

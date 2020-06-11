@@ -9,8 +9,9 @@
 
 <AuthorizeView>
     <Authorized>
-        <h3>All Gym Bookings</h3>
-        <h3>Hello @context.User.Identity.Name !!!!</h3>
+        <h2>Athletics Essendon Gym Bookings</h2>
+        <h3><font color="blue">All Gym Bookings</font></h3>
+        <h4>Hello @context.User.Identity.Name</h4>
 
         <p>Click here to choose the <b><i>Booking Date</i></b> to show.</p>
         <table class="table2">
@@ -31,7 +32,7 @@
 
 
                 </tr>
-                <tr >
+                <tr>
                     <td><b>Show Week:</b></td>
                     <td><button class="btn btn-primary" @onclick="@PreviousWeek">&nbsp;&nbsp;Prev&nbsp;&nbsp;</button></td>
                     <td><button class="btn btn-primary" @onclick="@SelectedWeek">Selected</button></td>
@@ -56,7 +57,7 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Duration</th>
-                        <th>Slot</th>
+                        <th>Slots</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,7 +69,7 @@
                             <td>@booking._Date</td>
                             <td>@booking.Time</td>
                             <td>@booking.Duration</td>
-                            <td>@booking.Slot</td>
+                            <td>@booking.Slots.Count</td>
                         </tr>
                     }
                 </tbody>

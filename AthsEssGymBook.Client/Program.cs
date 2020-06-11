@@ -29,8 +29,10 @@ namespace AthsEssGymBook.Client
                 client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddHttpClient<Services.BookingsClient>(client =>
                 client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            builder.Services.AddHttpClient<Services.BookingSlotsClient>(client =>
+                client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             //builder.Services.AddHttpClient<Services.BookingsClient>(client =>
-                //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
             var host = builder.Build();
             await host.RunAsync();
