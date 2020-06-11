@@ -1,4 +1,4 @@
-Athletics Essendon Gym Bookings app 
+Athletics Essendon Gym Bookings app - Use TimeSlots Fork
 ------------------------------------
 
 Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)  
