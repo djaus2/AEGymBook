@@ -81,136 +81,134 @@
 
 @functions {
 
-            AuthenticationState context { get; set; }
-            List<BookingInfo> MyBookings { get; set; }
-            BookingInfo MyBooking { get; set; }
-            Athlete LoggegInAthlete { get; set; }
-            List<BookingSlot> Slots = new List<BookingSlot>();
-            List<int> MySlotsIds = new List<int>();
+    AuthenticationState context { get; set; }
+    List<BookingInfo> MyBookings { get; set; }
+    BookingInfo MyBooking { get; set; }
+    Athlete LoggegInAthlete { get; set; }
+    List<BookingSlot> Slots = new List<BookingSlot>();
+    List<int> MySlotsIds = new List<int>();
 
-            BookingSlot Slot { get; set; }
+    BookingSlot Slot { get; set; }
 
-            int currentCount = Settings.MaxNumberInRoom;
-            int showCount = 0;
-            string showCountStrn = "";
-            string Message = "Info";
+    int currentCount = Settings.MaxNumberInRoom;
+    int showCount = 0;
+    string showCountStrn = "";
+    string Message = "Info";
 
-            bool DatePickerVisible = false;
-            bool TimePickerVisible = false;
+    bool DatePickerVisible = false;
+    bool TimePickerVisible = false;
 
-            DateTime Today_DT;
-            LocalDate Today_Local;
+    DateTime Today_DT;
+    LocalDate Today_Local;
 
 
-            LocalDate BookingDate_Local;
-            string ThisDate;
-            DateTime BookingDate_DT;
-            TimeSpan BookTime_TS;
-            LocalTime BookTime_Local;
+    LocalDate BookingDate_Local;
+    string ThisDate;
+    DateTime BookingDate_DT;
+    TimeSpan BookTime_TS;
+    LocalTime BookTime_Local;
 
-            TimeSpan Increment;
+    TimeSpan Increment;
 
-            async Task BookMe30()
+    async Task BookMe30()
+    {
+        await BookMe(1);
+    }
+
+    async Task BookMe60()
+    {
+        await BookMe(2);
+    }
+    async Task BookMe90()
+    {
+        await BookMe(3);
+    }
+    async Task BookMe120()
+    {
+        await BookMe(4);
+    }
+
+
+
+    bool IsDisabled30 = true;
+    bool IsDisabled60 = true;
+    bool IsDisabled90 = true;
+    bool IsDisabled120 = true;
+    bool IsDisabledDelete = true;
+
+
+
+    async Task ShowSlots()
+    {
+        Slots = await _BookingSlotsClient.GetSlotListFwd();
+        foreach (BookingSlot slot in Slots)
+        {
+            DateTime date = slot.Date;
+            TimeSpan time = slot.Time;
+
+            var dayBookings = await BookingsClient.GetMyBookingsForDay(date, 0);
+            slot.Count = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - dayBookings.Count(b => time == b);
+        }
+        var mySlotsIds = from slt in MyBookings select slt.Slots;
+        //Ref: https://stackoverflow.com/a/14395645/5478795
+        MySlotsIds = mySlotsIds.SelectMany(d => d).ToList();
+    }
+
+    void UpdateAvailable(TimeSpan bookingTime_TS)
+    {
+        IsDisabled30 = true;
+        IsDisabled60 = true;
+        IsDisabled90 = true;
+        IsDisabled120 = true;
+        IsDisabledDelete = true;
+
+        var myBooking = from bk in MyBookings
+                        where (bk.Date == BookingDate_DT) && (bk.Time == BookTime_TS)
+                        select bk;
+        MyBooking = myBooking.FirstOrDefault<BookingInfo>();
+        if (MyBooking != null)
+        {
+            IsDisabledDelete = false;
+            Message = "You already have a booking at this time.";
+            return;
+        } else
+        {
+            showCount = -1;
+            TimeSpan incr = new TimeSpan(0, 30, 0);
+
+            for (int i = 0; i < 4; i++)
             {
-                await BookMe(1);
-            }
-
-            async Task BookMe60()
-            {
-                await BookMe(2);
-            }
-            async Task BookMe90()
-            {
-                await BookMe(3);
-            }
-            async Task BookMe120()
-            {
-                await BookMe(4);
-            }
-
-
-
-            bool IsDisabled30 = true;
-            bool IsDisabled60 = true;
-            bool IsDisabled90 = true;
-            bool IsDisabled120 = true;
-            bool IsDisabledDelete = true;
-
-
-
-            async Task ShowSlots()
-            {
-                Slots = await _BookingSlotsClient.GetSlotListFwd();
-                foreach (BookingSlot slot in Slots)
+                if (i != 0)
+                    bookingTime_TS = bookingTime_TS.Add(incr);
+                BookingSlot slot = (from slt in Slots where (slt.Date == BookingDate_DT) && (slt.Time == bookingTime_TS) select slt).FirstOrDefault<BookingSlot>();
+                if (slot != null)
                 {
-                    DateTime date = slot.Date;
-                    TimeSpan time = slot.Time;
-
-                    var dayBookings = await BookingsClient.GetMyBookingsForDay(date, 0);
-                    slot.Count = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - dayBookings.Count(b => time == b);
-                }
-
-                var mySlotsIds = from slt in MyBookings select slt.Slots;
-                ////MySlotsIds = new List<int>{mySlotIds};
-            }
-
-            void UpdateAvailable(TimeSpan bookingTime_TS)
-            {
-                IsDisabled30 = true;
-                IsDisabled60 = true;
-                IsDisabled90 = true;
-                IsDisabled120 = true;
-                IsDisabledDelete = true;
-
-                var myBooking = from bk in MyBookings
-                                where (bk.Date == BookingDate_DT) && (bk.Time == BookTime_TS)
-                                select bk;
-                MyBooking = myBooking.FirstOrDefault<BookingInfo>();
-                if (MyBooking != null)
-                {
-                    IsDisabledDelete = false;
-                    Message = "You already have a booking at this time.";
-                    return;
-                } else
-                {
-                    showCount = -1;
-                    TimeSpan incr = new TimeSpan(0, 30, 0);
-
-                    for (int i = 0; i < 4; i++)
+                    if (MySlotsIds.Contains(slot.Id))
                     {
-                        if (i != 0)
-                            bookingTime_TS = bookingTime_TS.Add(incr);
-                        BookingSlot slot = (from slt in Slots where (slt.Date == BookingDate_DT) && (slt.Time == bookingTime_TS) select slt).FirstOrDefault<BookingSlot>();
-                        if (slot != null)
+                        break;
+                    }
+                    else
+                    {
+                        switch (i)
                         {
-                            if (MySlotsIds.Contains(slot.Id))
-                            {
+                            case 0:
+                                Slot = slot;
+                                showCount = Slot.Count;
+                                IsDisabled30 = false;
                                 break;
-                            }
-                            else
-                            {
-                                switch (i)
-                                {
-                                    case 0:
-                                        Slot = slot;
-                                        showCount = Slot.Count;
-                                        IsDisabled30 = false;
-                                        break;
-                                    case 1:
-                                        IsDisabled60 = false;
-                                        break;
-                                    case 2:
-                                        IsDisabled90 = false;
-                                        break;
-                                    case 3:
-                                        IsDisabled120 = false;
-                                        break;
-                                }
-                            }
+                            case 1:
+                                IsDisabled60 = false;
+                                break;
+                            case 2:
+                                IsDisabled90 = false;
+                                break;
+                            case 3:
+                                IsDisabled120 = false;
+                                break;
                         }
                     }
-
-
+                }
+            }
 
             if (showCount == 0)
             {

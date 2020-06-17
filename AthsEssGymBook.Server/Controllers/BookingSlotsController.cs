@@ -25,6 +25,9 @@ namespace AthsEssGymBook.Server.Controllers
             DbContextOptions<ApplicationDbContext> optionsBuilder = new DbContextOptions<ApplicationDbContext> ();
             //optionsBuilder.UseSqlite("Data Source=data.db");
             _context = new BookingsDBContext();
+            //_context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+
             System.Diagnostics.Debug.WriteLine("==BookingSlotsController==");
         }
         #endregion

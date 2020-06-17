@@ -50,22 +50,22 @@ namespace AthsEssGymBook.Server.Migrations
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
 
-            migrationBuilder.CreateTable(
-            name: "Athletes",
-            columns: table => new
-            {
-                Id = table.Column<int>(nullable: false),
-                UserName = table.Column<string>(maxLength: 256, nullable: true),
-                Email = table.Column<string>(maxLength: 256, nullable: true),
-                PhoneNumber = table.Column<string>(nullable: true),
-                IsAdmin = table.Column<bool>(nullable: false),
-                IsCoach = table.Column<bool>(nullable: false),
-                HasAccessCard = table.Column<bool>(nullable: false)
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Users", x => x.Id);
-            });
+            //migrationBuilder.CreateTable(
+            //name: "Athletes",
+            //columns: table => new
+            //{
+            //    Id = table.Column<int>(nullable: false),
+            //    UserName = table.Column<string>(maxLength: 256, nullable: true),
+            //    Email = table.Column<string>(maxLength: 256, nullable: true),
+            //    PhoneNumber = table.Column<string>(nullable: true),
+            //    IsAdmin = table.Column<bool>(nullable: false),
+            //    IsCoach = table.Column<bool>(nullable: false),
+            //    HasAccessCard = table.Column<bool>(nullable: false)
+            //},
+            //constraints: table =>
+            //{
+            //    table.PrimaryKey("PK_Users", x => x.Id);
+            //});
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
@@ -174,42 +174,42 @@ namespace AthsEssGymBook.Server.Migrations
                 });
 
 
-            migrationBuilder.CreateTable(
-                name: "BookingInfo",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    AthleteId = table.Column<int>(nullable: false),
-                    SlotsSerialized = table.Column<string>(nullable: false),
-                    _Date = table.Column<string>(nullable: false),
-                    _Time = table.Column<int>(nullable: false),
-                    _Duration = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BookingInfo", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BookingInfo_Athlete_Id",
-                        column: x => x.AthleteId,
-                        principalTable: "Athletes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            //migrationBuilder.CreateTable(
+            //    name: "BookingInfo",
+            //    columns: table => new
+            //    {
+            //        Id = table.Column<int>(nullable: false)
+            //            .Annotation("Sqlite:Autoincrement", true),
+            //        AthleteId = table.Column<int>(nullable: false),
+            //        SlotsSerialized = table.Column<string>(nullable: false),
+            //        _Date = table.Column<string>(nullable: false),
+            //        _Time = table.Column<int>(nullable: false),
+            //        _Duration = table.Column<int>(nullable: false)
+            //    },
+            //    constraints: table =>
+            //    {
+            //        table.PrimaryKey("PK_BookingInfo", x => x.Id);
+            //        table.ForeignKey(
+            //            name: "FK_BookingInfo_Athlete_Id",
+            //            column: x => x.AthleteId,
+            //            principalTable: "Athletes",
+            //            principalColumn: "Id",
+            //            onDelete: ReferentialAction.Cascade);
+            //    });
 
-            migrationBuilder.CreateTable(
-            name: "BookingSlots",
-            columns: table => new
-            {
-                Id = table.Column<int>(nullable: false)
-                    .Annotation("Sqlite:Autoincrement", true),
-                _Date = table.Column<string>(nullable: false),
-                _Time = table.Column<int>(nullable: false),
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_BookingSlot", x => x.Id);
-            });
+            //migrationBuilder.CreateTable(
+            //name: "BookingSlots",
+            //columns: table => new
+            //{
+            //    Id = table.Column<int>(nullable: false)
+            //        .Annotation("Sqlite:Autoincrement", true),
+            //    _Date = table.Column<string>(nullable: false),
+            //    _Time = table.Column<int>(nullable: false),
+            //},
+            //constraints: table =>
+            //{
+            //    table.PrimaryKey("PK_BookingSlot", x => x.Id);
+            //});
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

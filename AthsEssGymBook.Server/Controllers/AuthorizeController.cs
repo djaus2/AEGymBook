@@ -55,6 +55,7 @@ namespace AthsEssGymBook.Server.Controllers
             Athlete athlete;
             using (BookingsDBContext db = new BookingsDBContext())
             {
+                db.Database.EnsureCreated();
                 athlete = new Athlete
                 {
                     Id = 0,
