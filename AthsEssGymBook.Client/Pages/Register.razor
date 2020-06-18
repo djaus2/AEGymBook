@@ -2,9 +2,6 @@
 @layout LoginLayout
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
-<!-- h1 class="h2 font-weight-normal login-title">
-    AE Gym Bookings
-</!-h1 -->
 
     <EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="registerParameters" autocomplete="on">
         <DataAnnotationsValidator />
@@ -65,31 +62,31 @@
     </EditForm>
 
 
-@functions{
+    @functions{
 
-    RegisterParameters registerParameters { get; set; } = new RegisterParameters();
-    string error { get; set; }
+        RegisterParameters registerParameters { get; set; } = new RegisterParameters();
+        string error { get; set; }
 
-    async Task OnSubmit()
-    {
-        error = null;
-        try
+        async Task OnSubmit()
         {
-            await authStateProvider.Register(registerParameters);
-            navigationManager.NavigateTo("");
+            error = null;
+            try
+            {
+                await authStateProvider.Register(registerParameters);
+                navigationManager.NavigateTo("");
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
         }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-        }
-    }
 
-    protected void LoginClick()
-    {
-        navigationManager.NavigateTo("/login");
+        protected void LoginClick()
+        {
+            navigationManager.NavigateTo("/login");
+        }
+        protected void ForgotPwdClick()
+        {
+            navigationManager.NavigateTo("/forgotpwd");
+        }
     }
-    protected void ForgotPwdClick()
-    {
-        navigationManager.NavigateTo("/forgotpwd");
-    }
-}

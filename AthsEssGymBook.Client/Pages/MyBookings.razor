@@ -2,18 +2,14 @@
 @using NodaTime;
 @using System;
 @using AthsEssGymBook.Shared
+
 @inject HttpClient Http
 @inject IdentityAuthenticationStateProvider authStateProvider
-
+@inject IJSRuntime JsRuntime
 @inject Services.BookingsClient BookingsClient
-
+<h3><font color="blue">My Gym Bookings</font></h3>
 <AuthorizeView>
     <Authorized>
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">My Gym Bookings</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
-
-        <p>Click here to choose the <b><i>Booking Date</i></b> to show.</p>
         <table class="table2">
             <tbody>
                 <tr>
@@ -23,23 +19,23 @@
                     </td>
                 </tr>
                 <tr>
-                    <td></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowFrom">From</button></td>
-                    <td align="right"><i><b>Refresh:&nbsp;</b></i></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowAll">Show All</button></td>
+                    <td align="right"><font color="blue"><b><i>From:&nbsp;</i></b></font></td>
+                    <td><TelerikButton IconClass="oi oi-collapse-right" @onclick="@ShowFrom"></TelerikButton></td>
+                    <td align="right"><font color="blue"><b><i>Reload:&nbsp;</i></b></font></td>
+                    <td><TelerikButton IconClass="oi oi-reload" @onclick="@ShowAll"></TelerikButton></td>
                 </tr>
                 <tr>
-                    <td><b>Date:</b></td>
-                    <td><button class="btn btn-primary" @onclick="@PrevDay">Prev</button></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
-                    <td><button class="btn btn-primary" @onclick="@NextDay">Next</button></td>
+                    <td align="right"><font color="red"><b>Day:&nbsp;</b></font></td>
+                    <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevDay"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextDay"></TelerikButton></td>
                 </tr>
                 <tr>
-                    <td><b>Week:</b></td>
-                    <td><button class="btn btn-primary" @onclick="@PrevWeek">Prev</button></td>
-                    <td><button class="btn btn-primary" @onclick="@ThisWeek">Current</button></td>
-                    <td><button class="btn btn-primary" @onclick="@NextWeek">Next</button></td>
-                </tr>
+                    <td align="right"><font color="red"><b>Week:&nbsp;</b></font></td>
+                    <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevWeek"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextWeek"></TelerikButton></td>
+                </tr>>
             </tbody>
         </table>
 
@@ -47,35 +43,23 @@
 
         @if (MyBookingz == null)
         {
-            <p><em>Please wait. Loading...</em></p>
+        <p><em>Please wait. Loading...</em></p>
         }
         else
         {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Athlete Id</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Duration</th>
-                        <th>Slots</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var booking in Bookings)
-                    {
-                        <tr>
-                            <td>@booking.Id</td>
-                            <td>@booking.AthleteId</td>
-                            <td>@booking._Date</td>
-                            <td>@booking.Time</td>
-                            <td>@booking.Duration</td>
-                            <td>@booking.Slots.Count</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <TelerikGrid Data="@Bookings"
+                     Pageable="true" PageSize="10" Sortable="true" Groupable="true"
+                     OnDelete="@DeleteHandler"
+                     Resizable="true" Reorderable="true">
+            <GridColumns>
+                <GridColumn Field=@nameof(BookingInfo.Id) Title="Id" Editable="false" />
+                <GridColumn Field=@nameof(BookingInfo._Date) Title="Date" Editable="false" />
+                <GridColumn Field=@nameof(BookingInfo.Time) Title="Time" Editable="false" />
+                <GridCommandColumn>
+                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                </GridCommandColumn>
+            </GridColumns>
+        </TelerikGrid>
         }
 
     </Authorized>
@@ -87,7 +71,7 @@
 
 @functions {
 
-    AuthenticationState context { get; set; } 
+    AuthenticationState context { get; set; }
     List<BookingInfo> MyBookingz { get; set; } = new List<BookingInfo>();
     List<BookingInfo> Bookings { get; set; } = new List<BookingInfo>();
     Athlete LoggegInAthlete { get; set; }
@@ -322,6 +306,25 @@
         ThisDate = BookingDate_DT.ToString("D");
         MyBookingz = await BookingsClient.GetBookings(BookingDate_DT, LoggegInAthlete.Id);
         DatePickerVisible = false;
+    }
+
+    async Task DeleteHandler(GridCommandEventArgs args)
+    {
+        //AppendToLog("Delete", args);
+
+        BookingInfo item = (BookingInfo)args.Item;
+        if (item != null){        // perform actual data source operation here through your service
+            await Task.Delay(100); // simulate actual long running async operation
+
+            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Do you wish to delete that booking?");
+            if (confirmed)
+            {
+                //Need to delete its slots first
+                await BookingsClient.DeleteBooking(item.Id);
+                MyBookingz = await BookingsClient.GetBookingList(LoggegInAthlete.Id);
+                Bookings = MyBookingz;
+            }
+        }
     }
 
 

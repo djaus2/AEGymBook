@@ -12,6 +12,7 @@
 
 <div class="@NavMenuCssClass" @onclick="@ToggleNavMenu">
     <ul class="nav flex-column">
+
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
@@ -72,7 +73,12 @@
         {
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="CanSetSlots">
-                    <span class="oi oi-briefcase" aria-hidden="true"></span> Set Booking Sots
+                    <span class="oi oi-envelope-open" aria-hidden="true"></span> Set Booking Sots
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="DeleteSlots">
+                    <span class="oi oi-delete" aria-hidden="true"></span> Delete Time Slots
                 </NavLink>
             </li>
         }

@@ -19,7 +19,7 @@ namespace AthsEssGymBook.Server.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(@"Data Source=Databases\data.db");
+            optionsBuilder.UseSqlite(@"Data Source=data.db");
         }
     }
 }

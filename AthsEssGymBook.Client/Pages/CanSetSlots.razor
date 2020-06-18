@@ -1,37 +1,115 @@
 ﻿@page "/CanSetSlots"
 
+@using NodaTime;
+@using System;
+@using AthsEssGymBook.Shared
+@inject HttpClient Http
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 @inject AthsEssGymBook.Client.Services.AthleteClient athleteClient
 
-<AuthorizeView>
-    <Authorized>
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">Set Book Time Slots:</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
+@inject Services.BookingSlotsClient _BookingSlotsClient
 
-        <ul>
-            <li>
-                Not yet available.
-            </li>
-         </ul>
+@inject IJSRuntime JsRuntime
+    <h3><font color="blue">Set Time Slots available for booking:</font></h3>
+    <AuthorizeView>
+        <Authorized>
+            <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
+            <DatePicker Style="opacity:1" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
 
-    </Authorized>
-</AuthorizeView>
+            <table class="table2">
+                <tbody>
+                    <tr>
+                        <td><b>Date:</b></td>
+                        <td><button class="btn btn-primary" @onclick="@PrevDay">Prev</button></td>
+                        <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
+                        <td><button class="btn btn-primary" @onclick="@NextDay">Next;</button></td>
+                    </tr>
+                    <tr>
+                        <td><b>Week:</b></td>
+                        <td><button class="btn btn-primary" @onclick="@PrevWeek">Prev</button></td>
+                        <td></td>
+                        <td><button class="btn btn-primary" @onclick="@NextWeek">Next</button></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p>&nbsp;</p>
+                            Click here to set the <b><i>Booking Time Slot:</i></b><br />
+                            <input type="text" @onfocus=@TimePickerFocused value=@BookTime_TS />
+                            <TimePicker MinuteStep="30" Visible=TimePickerVisible OnSelectedTimeChanged=@LocalTimeChanged ShowClose=true CloseOnSelect=true SelectedTime="BookTime_Local" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Slot:</b></td>
+                        <td><button class="btn btn-primary" @onclick="@PrevTimeSlot">Prev</button></td>
+                        <td><button class="btn btn-primary" @onclick="@StartTimeSlot">Start</button></td>
+                        <td><button class="btn btn-primary" @onclick="@NextTimeSlot">Next</button></td>
+                    </tr>
+                    <tr><td colspan="4"><h3>Add or Delete Slots</h3></td></tr>
+                    <tr>
+                        <td><b>Add:</b></td>
+                        <td><button id="min30" class="btn btn-primary" @onclick="@AddCurrentTimeSlot">Time Sot</button></td>
+                        <td><button id="min60" class="btn btn-primary" @onclick="@AddCurrentDaySlots">Day</button></td>
+                        <td><button id="min90" class="btn btn-primary" @onclick="@AddCurrentWeekSlots">Week</button></td>
+                    </tr>
+                    <tr>
+                        <td><b>Delete:</b></td>
+                        <td><button id="min30" class="btn btn-primary" @onclick="@DeleteCurrentTimeSlot">Time Slot</button></td>
+                        <td><button id="min60" class="btn btn-primary" @onclick="@DeleteCurrentDaySlots">Day</button></td>
+                        <td><button id="min90" class="btn btn-primary" @onclick="@DeleteCurrentWeekSlots">Week</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </Authorized>
+        <Authorizing>
+            <h1>Please wait. Loading ...</h1>
+        </Authorizing>
+    </AuthorizeView>
 
-@code {
+    @code {
 
     bool bIsAdmin = false;
     bool bHasAccessCard = false;
     bool bIsCoach = false;
     bool bCanSetSlots = false;
 
+    string UserName;
+
 
     AuthenticationState context { get; set; }
-    string UserName;
+
+
+    string Message = "Info";
+
+    bool DatePickerVisible = false;
+    bool TimePickerVisible = false;
+
+    DateTime Today_DT;
+    LocalDate Today_Local;
+
+
+    LocalDate BookingDate_Local;
+    string ThisDate;
+    DateTime BookingDate_DT;
+    TimeSpan BookTime_TS;
+    LocalTime BookTime_Local;
+
+    void UpdateDate()
+    {
+        ThisDate = BookingDate_DT.ToString("D");
+        StateHasChanged();
+    }
+
+    async Task UpdateData()
+    {
+
+        var allSots = await _BookingSlotsClient.GetSlotList();
+        UpdateDate();
+    }
 
     protected override async Task OnInitializedAsync()
     {
+
         context = await authStateProvider.GetAuthenticationStateAsync();
         UserName = context.User.Identity.Name;
 
@@ -50,10 +128,289 @@
             bCanSetSlots = user.CanSetSlots;
         }
 
-        if (!bCanSetSlots)
+        if (!bIsAdmin)
             navigationManager.NavigateTo("/");
 
+
+
+        Today_DT = DateTime.Today;
+        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
+        BookingDate_DT = DateTime.Today;
+        BookTime_TS = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+        BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
+
+        await UpdateData();
     }
-}
+
+    #region Date and Time UI Handlers
+    /// UI Handlers /////////////////////////////////////////////////////////////////////////
+
+    void PrevWeek()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(-7);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            UpdateData();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+    void NextWeek()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(+7);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void PrevDay()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(-1);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            StateHasChanged();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void ShowToday()
+    {
+        var bookingDate_DT = DateTime.Today;
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void NextDay()
+    {
+        var bookingDate_DT = BookingDate_DT.AddDays(1);
+        Message = "";
+        if (bookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_DT = bookingDate_DT;
+            BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+            DatePickerVisible = false;
+            StateHasChanged();
+            TimePickerVisible = false;
+            UpdateDate();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void PrevTimeSlot()
+    {
+        BookTime_TS = BookTime_TS.Subtract(new TimeSpan(0, 30, 0));
+        BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
+        StateHasChanged();
+        TimePickerVisible = false;
+        StateHasChanged();
+    }
+
+    void StartTimeSlot()
+    {
+        BookTime_TS = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
+        BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
+        StateHasChanged();
+        TimePickerVisible = false;
+        StateHasChanged();
+    }
+
+    void NextTimeSlot()
+    {
+        BookTime_TS = BookTime_TS.Add(new TimeSpan(0, 30, 0));
+        BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
+        StateHasChanged();
+        TimePickerVisible = false;
+        StateHasChanged();
+    }
+
+    void DatePickerFocused(FocusEventArgs e)
+    {
+        DatePickerVisible = true;
+        TimePickerVisible = false;
+        StateHasChanged();
+    }
+
+    async Task LocaDateSelected(LocalDate localDate)
+    {
+        BookingDate_DT = new DateTime(localDate.Year, localDate.Month, localDate.Day);
+        System.Diagnostics.Debug.WriteLine(BookingDate_DT);
+        Message = "";
+        if (BookingDate_DT >= DateTime.Today)
+        {
+            BookingDate_Local = localDate;
+            DatePickerVisible = false;
+            TimePickerVisible = false;
+            StateHasChanged();
+        }
+        else
+        {
+            Message = "Please select a date today or in the future.";
+        }
+    }
+
+    void TimePickerFocused()
+    {
+        TimePickerVisible = true;
+        DatePickerVisible = false;
+        StateHasChanged();
+    }
+
+    void LocalTimeChanged(LocalTime time)
+    {
+        BookTime_TS = new TimeSpan(time.Hour, time.Minute, 0);
+        BookTime_Local = time;
+        StateHasChanged();
+
+    }
+
+    #endregion
+
+    #region Data Add and Delete
+    /// DaTA /////////////////////////////////////////////////////////////////////////
+
+    #region Add Slots
+    async Task AddaTimeSlot(DateTime date, TimeSpan time)
+    {
+        BookingSlot slot = new BookingSlot { Date = date, Time = time };
+        await _BookingSlotsClient.AddBookingSlot(slot);
+    }
+
+    async Task AddSlotsForDay(DateTime date)
+    {
+
+        TimeSpan time = AthsEssGymBook.Shared.Settings.OpenHour;
+        TimeSpan endtime = AthsEssGymBook.Shared.Settings.CloseHour;
+        TimeSpan incr = new TimeSpan(0, 30, 0);
+
+        var c = TimeSpan.Compare(time, endtime);
+
+        for (int i = 0; TimeSpan.Compare(time, endtime) < 0; i++)
+        {
+            await AddaTimeSlot(date, time);
+            time = time.Add(incr);
+        }
+        var slots = await _BookingSlotsClient.GetSlotList();
+    }
+    #endregion
+
+    #region Delete Slots
+    async Task DeleteaTimeSlot(DateTime bookingDate_DT, TimeSpan bookTime_TS)
+    {
+        int id = await _BookingSlotsClient.GetBookingSlotId(bookingDate_DT, bookTime_TS);
+        if (id > 0)
+        {
+            await _BookingSlotsClient.DeleteBookingSlot(id);
+        }
+    }
+
+    async Task DeleteSlotsForDay(DateTime bookingDate_DTS)
+    {
+        var slots = await _BookingSlotsClient.GetSlotList();
+        var slots4Day = from s in slots where s.Date == bookingDate_DTS select s;
+        foreach (var s in slots4Day)
+        {
+            await DeleteaTimeSlot(s.Date, s.Time);
+        }
+    }
+    #endregion
+
+    #endregion
+
+    #region UI Slots Handlers
+
+    #region UI Add Slots Handlers
+    /// UI Calls to add slots //////////////////////////////////////////////////////
+
+    async Task AddCurrentDaySlots()
+    {
+        await AddSlotsForDay(BookingDate_DT);
+    }
+
+    async Task AddCurrentTimeSlot()
+    {
+        await AddaTimeSlot(BookingDate_DT, BookTime_TS);
+    }
+
+    async Task AddCurrentWeekSlots()
+    {
+        DateTime today = DateTime.Today;
+        int dayofWeek = (int)today.DayOfWeek;
+        DateTime monday = today.AddDays(-dayofWeek + 1);
+        foreach (int openDay in AthsEssGymBook.Shared.Settings.OpenDays)
+        {
+            DateTime day = monday.AddDays(openDay - 1);
+            await AddSlotsForDay(day);
+        }
+    }
+    #endregion
+
+    #region UI Delete Slots Handlers
+    /// UI Calls to delete slots //////////////////////////////////////////////////////
+
+    async Task DeleteCurrentDaySlots()
+    {
+        await DeleteSlotsForDay(BookingDate_DT);
+    }
+
+    async Task DeleteCurrentTimeSlot()
+    {
+        await DeleteaTimeSlot(BookingDate_DT, BookTime_TS);
+    }
+
+    async Task DeleteCurrentWeekSlots()
+    {
+        DateTime today = DateTime.Today;
+        int dayofWeek = (int)today.DayOfWeek;
+        DateTime monday = today.AddDays(-dayofWeek + 1);
+        foreach (int openDay in AthsEssGymBook.Shared.Settings.OpenDays)
+        {
+            DateTime day = monday.AddDays(openDay - 1);
+            await DeleteSlotsForDay(day);
+        }
+    }
+    #endregion
+
+    #endregion
+    }
 
 

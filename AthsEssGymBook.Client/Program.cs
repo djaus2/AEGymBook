@@ -36,6 +36,9 @@ namespace AthsEssGymBook.Client
             //builder.Services.AddHttpClient<Services.BookingsClient>(client =>
             //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
+            // register the Telerik services
+            builder.Services.AddTelerikBlazor();
+
             var host = builder.Build();
             await host.RunAsync();
         }

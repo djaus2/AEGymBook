@@ -1,22 +1,20 @@
 ﻿@page "/"
+    <h3><font color="blue">Hi there.</font></h3>
+    <AuthorizeView>
+        <Authorized>
+            <h4>Hello @context.User.Identity.Name</h4>
 
-<AuthorizeView>
-    <Authorized>
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">.</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
-
-        <font color="Red">When we get access to our Gym, there will be usage restrictions.</font><br />
-        <font color="Black">
-            Apart form cleanliness there will be a linit on the number of users
-            that can be in the Gym at any one time.
-        </font><br />
-        <font color="Red">This app manages bookings for the Gym.</font><br/>
-        <font color="Black">You can view all or your bookings, make and delete bookings.</font>
+            <font color="Red">When we get access to our Gym, there will be usage restrictions.</font><br />
+            <font color="Black">
+                Apart form cleanliness there will be a linit on the number of users
+                that can be in the Gym at any one time.
+            </font><br />
+            <font color="Red">This app manages bookings for the Gym.</font><br />
+            <font color="Black">You can view all or your bookings, make and delete bookings.</font>
 
 
-    </Authorized>
-    <Authorizing>
-        <h1>Loading ...</h1>
-    </Authorizing>
-</AuthorizeView>
+        </Authorized>
+        <Authorizing>
+            <h1>Loading ...</h1>
+        </Authorizing>
+    </AuthorizeView>

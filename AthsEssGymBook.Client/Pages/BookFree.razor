@@ -9,16 +9,9 @@
 @inject Services.BookingsClient BookingsClient
 
 @inject IJSRuntime JsRuntime
-
-
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">Make a Gym Booking</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
-
-        <p>@Message</p>
-
-        Click here to choose the <b><i>Booking Date:</i></b><br />
-
+<h3><font color="blue">Make a Gym Booking</font></h3>
+<AuthorizeView>
+    <Authorized>
         <table class="table2">
             <tbody>
                 <tr>
@@ -72,9 +65,13 @@
         <p>...</p>
 
 
+        </Authorized>
+        <Authorizing>
+            <h1>Please wait. Loading ...</h1>
+        </Authorizing>
+    </AuthorizeView>
 
-
-@functions {
+        @functions {
 
             AuthenticationState context { get; set; }
             List<BookingInfo> MyBookings { get; set; }
@@ -488,7 +485,7 @@
         }
     }
 
-}
+        }
 
 
 

@@ -3,23 +3,24 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 @inject AthsEssGymBook.Client.Services.AthleteClient athleteClient
+    <h3><font color="blue">Has Access Pass Bookings:</font></h3>
+    <AuthorizeView>
+        <Authorized>
+            <h4>Hello @context.User.Identity.Name</h4>
 
-<AuthorizeView>
-    <Authorized>
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">Has Access Pass Bookings:</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
+            <ul>
+                <li>
+                    Not yet available.
+                </li>
+            </ul>
 
-        <ul>
-            <li>
-                Not yet available.
-            </li>
-        </ul>
+        </Authorized>
+        <Authorizing>
+            <h1>Loading ...</h1>
+        </Authorizing>
+    </AuthorizeView>
 
-    </Authorized>
-</AuthorizeView>
-
-@code {
+    @code {
 
     bool bIsAdmin = false;
     bool bHasAccessCard = false;
@@ -53,6 +54,6 @@
             navigationManager.NavigateTo("/");
 
     }
-}
+    }
 
 

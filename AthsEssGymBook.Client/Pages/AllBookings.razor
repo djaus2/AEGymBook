@@ -6,93 +6,73 @@
 @inject IdentityAuthenticationStateProvider authStateProvider
 
 @inject Services.BookingsClient BookingsClient
-
-<AuthorizeView>
-    <Authorized>
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">All Gym Bookings</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
-
-        <p>Click here to choose the <b><i>Booking Date</i></b> to show.</p>
-        <table class="table2">
-            <tbody>
-                <tr>
-                    <td colspan="4">
-                        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
-                        <DatePicker Style="opacity:100" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowFrom">From</button></td>
-                    <td align="right"><i><b>Refresh:&nbsp;</b></i></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowAll">Show All</button></td>
-                </tr>
-                <tr>
-                    <td><b>Date:</b></td>
-                    <td><button class="btn btn-primary" @onclick="@PrevDay">Prev</button></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
-                    <td><button class="btn btn-primary" @onclick="@NextDay">Next</button></td>
-                </tr>
-                <tr>
-                    <td><b>Week:</b></td>
-                    <td><button class="btn btn-primary" @onclick="@PrevWeek">Prev</button></td>
-                    <td><button class="btn btn-primary" @onclick="@ThisWeek">Current</button></td>
-                    <td><button class="btn btn-primary" @onclick="@NextWeek">Next</button></td>
-                </tr>
-            </tbody>
-        </table>
+    <h3><font color="blue">All Gym Bookings</font></h3>
+    <AuthorizeView>
+        <Authorized>
+            <table class="table2">
+                <tbody>
+                    <tr>
+                        <td colspan="4">
+                            <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
+                            <DatePicker Style="opacity:100" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right"><font color="blue"><b><i>From:&nbsp;</i></b></font></td>
+                        <td><TelerikButton IconClass="oi oi-collapse-right" @onclick="@ShowFrom"></TelerikButton></td>
+                        <td align="right"><font color="blue"><b><i>Reload:&nbsp;</i></b></font></td>
+                        <td><TelerikButton IconClass="oi oi-reload" @onclick="@ShowAll"></TelerikButton></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><font color="red"><b>Day:&nbsp;</b></font></td>
+                        <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevDay"></TelerikButton></td>
+                        <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                        <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextDay"></TelerikButton></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><font color="red"><b>Week:&nbsp;</b></font></td>
+                        <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevWeek"></TelerikButton></td>
+                        <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                        <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextWeek"></TelerikButton></td>
+                    </tr>
+                </tbody>
+            </table>
 
 
 
 
-        @if (MyBookingz == null)
+            @if (MyBookingz == null)
         {
             <p><em>Please wait. Loading...</em></p>
         }
         else
         {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Athlete Id</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Duration</th>
-                        <th>Slots</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var booking in MyBookingz)
-                    {
-                        <tr>
-                            <td>@booking.Id</td>
-                            <td>@booking.AthleteId</td>
-                            <td>@booking._Date</td>
-                            <td>@booking.Time</td>
-                            <td>@booking.Duration</td>
-                            <td>@booking.Slots.Count</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <TelerikGrid Data="@Bookings"
+                Pageable="true" PageSize="10" Sortable="true" Groupable="true"
+             Resizable="true" Reorderable="true">
+                <GridColumns>
+                <GridColumn Field=@nameof(BookingInfo.Id) Title="Id" Editable="false" />
+                <GridColumn Field=@nameof(BookingInfo._Date) Title="Date" Editable="false" />
+                <GridColumn Field=@nameof(BookingInfo.Time) Title="Time" Editable="false" />
+                </GridColumns>
+            </TelerikGrid>
+
         }
 
-    </Authorized>
-    <Authorizing>
-        <h1>Please wait. Loading ...</h1>
-    </Authorizing>
-</AuthorizeView>
+        </Authorized>
+        <Authorizing>
+            <h1>Please wait. Loading ...</h1>
+        </Authorizing>
+    </AuthorizeView>
 
 
-        @functions {
+    @functions {
 
-    AuthenticationState context { get; set; } 
+    AuthenticationState context { get; set; }
     List<BookingInfo> MyBookingz { get; set; } = new List<BookingInfo>();
     List<BookingInfo> Bookings { get; set; } = new List<BookingInfo>();
-   
-    
+
+
 
     Dictionary<TimeSpan, int> BookingCounts { get; set; }
     List<TimeSpan> MyBookingTimes { get; set; } = new List<TimeSpan>();
@@ -324,7 +304,7 @@
     }
 
 
-        }
+    }
 
 
 

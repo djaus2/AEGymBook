@@ -9,77 +9,69 @@
 @inject Services.BookingsClient BookingsClient
 
 @inject IJSRuntime JsRuntime
+    <h3><font color="blue">Make a Gym Booking</font></h3>
+    <AuthorizeView>
+        <Authorized>
+            <table class="table2">
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
+                            <DatePicker Style="opacity:1" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><font color="blue"><b>Day:&nbsp;</b></font></td>
+                        <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevDay"></TelerikButton></td>
+                        <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                        <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextDay"></TelerikButton></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p>&nbsp;</p>
+                            Click here to set the <b><i>Booking Time Slot:</i></b><br />
+                            <input type="text" @onfocus=@TimePickerFocused value=@BookTime_TS />
+                            <TimePicker MinuteStep="30" Visible=TimePickerVisible OnSelectedTimeChanged=@LocalTimeChanged ShowClose=true CloseOnSelect=true SelectedTime="BookTime_Local" />
+                        </td>>
+                    </tr>
+                    <tr>
+                        <td align="right"><font color="blue"><b>Slot:&nbsp;</b></font></td>
+                        <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevTimeSlot"></TelerikButton></td>
+                        <td><button class="btn btn-primary" disabled="@IsDisabled30" @onclick="@BookMe30">BOOK 30</button></td>
+                        <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextTimeSlot"></TelerikButton></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><font color="blue"><b>Longer Book:&nbsp;</b></font></td>
+                        <td><button id="min30" class="btn btn-primary" disabled="@IsDisabled60" @onclick="@BookMe60">1 hour</button></td>
+                        <td><button id="min60" class="btn btn-primary" disabled="@IsDisabled90" @onclick="@BookMe90">90 min</button></td>
+                        <td><button id="min90" class="btn btn-primary" disabled="@IsDisabled120" @onclick="@BookMe120">2 hours</button></td>
+                    </tr>
+                </tbody>
+            </table>
 
-<AuthorizeView>
-    <Authorized>
-        <h2>Athletics Essendon Gym Bookings</h2>
-        <h3><font color="blue">Make a Gym Booking</font></h3>
-        <h4>Hello @context.User.Identity.Name</h4>
-
-        <p>@Message</p>
-
-        Click here to choose the <b><i>Booking Date:</i></b><br />
-
-        <table class="table2">
-            <tbody>
-                <tr>
-                    <td colspan="3">
-                        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
-                        <DatePicker Style="opacity:1" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
-                    </td>
-                    <td><button class="btn btn-primary" disabled="@IsDisabledDelete" @onclick="@DeleteBooking">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><b>Date:</b></td>
-                    <td><button class="btn btn-primary" @onclick="@PrevDay">Prev</button></td>
-                    <td><button class="btn btn-primary" @onclick="@ShowToday">Today</button></td>
-                    <td><button class="btn btn-primary" @onclick="@NextDay">Next;</button></td>
-                </tr>
-                <tr>
-                    <td colspan="4">
-                        <p>&nbsp;</p>
-                        Click here to set the <b><i>Booking Time Slot:</i></b><br />
-                        <input type="text" @onfocus=@TimePickerFocused value=@BookTime_TS />
-                        <TimePicker MinuteStep="30" Visible=TimePickerVisible OnSelectedTimeChanged=@LocalTimeChanged ShowClose=true CloseOnSelect=true SelectedTime="BookTime_Local" />
-                    </td>>
-                </tr>
-                <tr>
-                    <td><b>Slot:</b></td>
-                    <td><button class="btn btn-primary" @onclick="@PrevTimeSlot">Prev</button></td>
-                    <td><button class="btn btn-primary" disabled="@IsDisabled30" @onclick="@BookMe30">BOOK 30</button></td>
-                    <td><button class="btn btn-primary" @onclick="@NextTimeSlot">Next</button></td>
-                </tr>
-                <tr>
-                    <td><b>Longer Book:</b></td>
-                    <td><button id="min30" class="btn btn-primary" disabled="@IsDisabled60" @onclick="@BookMe60">1 hour</button></td>
-                    <td><button id="min60" class="btn btn-primary" disabled="@IsDisabled90" @onclick="@BookMe90">90 min</button></td>
-                    <td><button id="min90" class="btn btn-primary" disabled="@IsDisabled120" @onclick="@BookMe120">2 hours</button></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <br />
-        <br />
-        <p>Available Booking Slots: @showCountStrn out of 4</p>
-        <p>Next 1/2 hour: @showCount out of 4</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-        <p>...</p>
-    </Authorized>
-    <Authorizing>
-        <h1>Please wait. Loading ...</h1>
-    </Authorizing>
-</AuthorizeView>
+            <br />
+            <br />
+            <p>Available Booking Slots: @showCountStrn out of 4</p>
+            <p>Next 1/2 hour: @showCount out of 4</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+            <p>...</p>
+        </Authorized>
+        <Authorizing>
+            <h1>Please wait. Loading ...</h1>
+        </Authorizing>
+    </AuthorizeView>
 
 
 
-@functions {
+    @functions {
 
     AuthenticationState context { get; set; }
     List<BookingInfo> MyBookings { get; set; }
@@ -249,6 +241,7 @@
         Today_DT = DateTime.Today;
         Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
         BookingDate_DT = DateTime.Today;
+        
         BookTime_TS = AthsEssGymBook.Shared.Settings.AddBookingShowStartTime;
         BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
         BookTime_Local = new LocalTime(BookTime_TS.Hours, BookTime_TS.Minutes, BookTime_TS.Seconds);
@@ -263,6 +256,7 @@
         await ShowSlots();
 
         await RefreshMyData(BookingDate_DT, BookTime_TS);
+        StateHasChanged();
     }
 
     async Task PrevDay()
@@ -491,7 +485,7 @@
         }
     }
 
-}
+    }
 
 
 

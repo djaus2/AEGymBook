@@ -3,9 +3,6 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
-<!-- h1 class="h2 font-weight-normal login-title">
-    AE Gym Bookings
-</!-h1 -->
 
     <EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="loginParameters">
         <DataAnnotationsValidator />
@@ -50,7 +47,9 @@
         <label class="text-danger">@error</label>
     </EditForm>
 
-@code{
+
+
+    @code{
     LoginParameters loginParameters { get; set; } = new LoginParameters();
     string error { get; set; }
 
@@ -71,6 +70,7 @@
         }
     }
 
+
     protected void RegistertClick()
     {
         navigationManager.NavigateTo("/register");
@@ -79,4 +79,4 @@
     {
         navigationManager.NavigateTo("/forgotpwd");
     }
-}
+    }

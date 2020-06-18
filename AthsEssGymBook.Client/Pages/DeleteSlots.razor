@@ -1,72 +1,165 @@
-﻿@page "/ListSlots"
-
+﻿@page "/DeleteSlots"
 @using NodaTime;
-@using System;
-@using AthsEssGymBook.Shared
 @using Telerik.Blazor.Components
-
-@inject HttpClient Http
-@inject IdentityAuthenticationStateProvider authStateProvider
-
 @inject Services.BookingSlotsClient _BookingSlotsClient
 @inject Services.BookingsClient _BookingsClient
-    <h3><font color="blue">Scheduled Timeslots</font></h3>
-    <AuthorizeView>
-        <Authorized>
-            <table class="table2">
-                <tbody>
-                    <tr>
-                        <td colspan="4">
-                            <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
-                            <DatePicker Style="opacity:100" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
-                        </td>
-                    </tr>
+@inject IJSRuntime JsRuntime
 
-                    <tr>
-                        <td align="right"><font color="blue"><b><i>From:&nbsp;</i></b></font></td>
-                        <td><TelerikButton IconClass="oi oi-collapse-right" @onclick="@ShowFrom"></TelerikButton></td>
-                        <td align="right"><font color="blue"><b><i>Reload:&nbsp;</i></b></font></td>
-                        <td><TelerikButton  IconClass="oi oi-reload" @onclick="@ShowSlots"></TelerikButton></td>
-                    </tr>
-                    <tr>
-                        <td align="right"><font color="red"><b>Day:&nbsp;</b></font></td>
-                        <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevDay"></TelerikButton></td>
-                        <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
-                        <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextDay"></TelerikButton></td>
-                    </tr>
-                    <tr>
-                        <td align="right"><font color="red"><b>Week:&nbsp;</b></font></td>
-                        <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevWeek"></TelerikButton></td>
-                        <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
-                        <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextWeek"></TelerikButton></td>
-                    </tr>
-                </tbody>
-            </table>
+<h3><font color="blue">Delete Slots</font></h3>
+<AuthorizeView>
+    <Authorized>
+        <table class="table2">
+            <tbody>
+                <tr>
+                    <td colspan="4">
+                        <input id="Date" value=@ThisDate type="text" @onfocus="@DatePickerFocused" />
+                        <DatePicker Style="opacity:100" SelectedDate="BookingDate_Local" Visible="DatePickerVisible" OnSelected="LocaDateSelected" MinDate="@Today_Local" DaysOfWeekDisabled=@(new IsoDayOfWeek[] { IsoDayOfWeek.Saturday, IsoDayOfWeek.Sunday }) />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right"><font color="blue"><b><i>From:&nbsp;</i></b></font></td>
+                    <td><TelerikButton IconClass="oi oi-collapse-right" @onclick="@ShowFrom"></TelerikButton></td>
+                    <td align="right"><font color="blue"><b><i>Reload:&nbsp;</i></b></font></td>
+                    <td><TelerikButton IconClass="oi oi-reload" @onclick="@ShowSlots"></TelerikButton></td>
+                </tr>
+                <tr>
+                    <td align="right"><font color="red"><b>Day:&nbsp;</b></font></td>
+                    <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevDay"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextDay"></TelerikButton></td>
+                </tr>
+                <tr>
+                    <td align="right"><font color="red"><b>Week:&nbsp;</b></font></td>
+                    <td><TelerikButton IconClass="oi oi-caret-left" @onclick="@PrevWeek"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-media-stop" @onclick="@ShowToday"></TelerikButton></td>
+                    <td><TelerikButton IconClass="oi oi-caret-right" @onclick="@NextWeek"></TelerikButton></td>
+                </tr>
 
-            @if (Slots == null)
-        {
-            <p><em>Please wait. Loading...</em></p>
+
+                <tr><td colspan="4">Current count: @currentCount</td></tr>
+
+
+                @*<tr>
+                    <td><b>ToDo:</b></td>
+                    <td><button class="btn btn-primary" @onclick="@CommitAll">CommitAll</button></td>
+                    <td><button class="btn btn-primary" @onclick="@Refresh">UndoAll</button></td>
+                    <td>&nbsp;</td>
+                </tr>*@
+            </tbody>
+        </table>
+
+
+        <TelerikGrid Data="@Slots"
+                     OnDelete="@DeleteHandler"
+                     Resizable="true" Reorderable="true">
+            <GridColumns>
+                <GridColumn Field=@nameof(BookingSlot.Id) Title="Id" Editable="false" />
+                <GridColumn Field=@nameof(BookingSlot._Date) Title="Date" Editable="false" />
+                <GridColumn Field=@nameof(BookingSlot.Time) Title="Time" Editable="false" />
+                <GridCommandColumn>
+                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                </GridCommandColumn>
+            </GridColumns>
+        </TelerikGrid>
+    </Authorized>
+    <Authorizing>
+        <h1>Please wait. Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>
+
+@functions {
+
+    int currentCount { get; set; } = 0;
+
+    //List<BookingSlot> AllSlots = new List<BookingSlot>();
+    //List<BookingSlot> Slots = new List<BookingSlot>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Today_DT = DateTime.Today;
+        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
+        BookingDate_DT = DateTime.Today;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+
+        await ShowSlots();
+        UpdateData();
+
+
+        AllSlots = await _BookingSlotsClient.GetSlotListFwd();
+        Slots = AllSlots;
+        currentCount = Slots.Count();
+        //IdsToDelete = new List<int>();
+    }
+
+
+    async Task DeleteHandler(GridCommandEventArgs args)
+    {
+        //AppendToLog("Delete", args);
+
+        BookingSlot item = (BookingSlot)args.Item;
+
+        if (item != null){        // perform actual data source operation here through your service
+            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Do you wish to delete that booking slot?");
+            if (confirmed)
+            {
+                //Need to find and delete all bookings with that slot. 2Do
+
+                await _BookingSlotsClient.DeleteBookingSlot(item.Id);
+                AllSlots = AllSlots = await _BookingSlotsClient.GetSlotListFwd();
+                Slots = AllSlots;
+                currentCount = Slots.Count();
+
+                /*await Task.Delay(100); // simulate actual long running async operation
+                
+                // if the grid Data is not tied to the service, you may need to update the local view data too
+                IdsToDelete.Add(item.Id);
+                Slots.Remove(item);
+                currentCount = Slots.Count();*/
+            }
         }
-        else
+    }
+    
+    /*
+    List<int> IdsToDelete = new List<int>();
+    async Task CommitAll()
+    {
+        foreach (int id in IdsToDelete)
         {
-            <TelerikGrid Data="@Slots"
-                         Pageable="true" PageSize="10" Sortable="true" Groupable="true"
-                         Resizable="true" Reorderable="true">
-                <GridColumns>
-                    <GridColumn Field=@nameof(BookingSlot.Id) Title="Id" Editable="false" />
-                    <GridColumn Field=@nameof(BookingSlot._Date) Title="Date" Editable="false" />
-                    <GridColumn Field=@nameof(BookingSlot.Time) Title="Time" Editable="false" />
-                </GridColumns>
-            </TelerikGrid>
+            await _BookingSlotsClient.DeleteBookingSlot(id);
         }
+        IdsToDelete = new List<int>();
+        AllSlots = AllSlots = await _BookingSlotsClient.GetSlotListFwd();
+        Slots = AllSlots;
+        currentCount = Slots.Count();
+    }
 
-        </Authorized>
-        <Authorizing>
-            <h1>Please wait. Loading ...</h1>
-        </Authorizing>
-    </AuthorizeView>
+    async Task CommitLast()
+    {
+        if (IdsToDelete.Count() > 0)
+        {
+            int id = IdsToDelete.Last<int>();
+            await _BookingSlotsClient.DeleteBookingSlot(id);
+        }
+    }
 
-    @code {
+    async Task Refresh()
+    {
+        IdsToDelete = new List<int>();
+        AllSlots = AllSlots = await _BookingSlotsClient.GetSlotListFwd();
+        Slots = AllSlots;
+        currentCount = Slots.Count();
+    }
+
+    void UndoLast()
+    {
+        if (IdsToDelete.Count() > 0)
+        {
+            IdsToDelete.RemoveAt(IdsToDelete.Count() - 1);
+        }
+    }*/
+
+
+    /// ////////////////////////////
 
     string Message = "Info";
 
@@ -87,7 +180,9 @@
 
     void UpdateDate()
     {
+
         ThisDate = BookingDate_DT.ToString("D");
+        currentCount = Slots.Count();
         StateHasChanged();
     }
 
@@ -98,16 +193,7 @@
         UpdateDate();
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        Today_DT = DateTime.Today;
-        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
-        BookingDate_DT = DateTime.Today;
-        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
 
-        await ShowSlots();
-        UpdateData();
-    }
 
     async Task ShowSlots()
     {
@@ -121,6 +207,7 @@
             AllSlots[i].Count = AthsEssGymBook.Shared.Settings.MaxNumberInRoom - dayBookings.Count(b => time == b);
         }
         Slots = AllSlots;
+        currentCount = Slots.Count();
         UpdateData();
     }
 
@@ -144,6 +231,7 @@
             var slots = from b in AllSlots where (DateTime.Compare(b.Date, startDate) > 0) && (DateTime.Compare(b.Date, endDate) < 0) select b;
 
             Slots = slots.ToList<BookingSlot>();
+            currentCount = Slots.Count();
             UpdateDate();
         }
         else
@@ -285,10 +373,6 @@
         }
     }
 
-
-
     #endregion
 
-    }
-
-
+}

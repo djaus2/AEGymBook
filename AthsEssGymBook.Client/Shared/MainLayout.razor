@@ -2,9 +2,11 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
+
+
 <AuthorizeView>
     <Authorized>
-        <div class="sidebar">
+        @*<div class="sidebar">
             <NavMenu />
         </div>
 
@@ -16,7 +18,19 @@
             <div class="content px-4">
                 @Body
             </div>
-        </div>
+        </div>*@
+
+        <TelerikRootComponent>
+
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+
+            <div class="main">
+                @Body
+            </div>
+
+        </TelerikRootComponent>
     </Authorized>
 </AuthorizeView>
 

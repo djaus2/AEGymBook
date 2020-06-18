@@ -16,6 +16,7 @@ namespace AthsEssGymBook.Server
                 .UseConfiguration(new ConfigurationBuilder()
                     .AddCommandLine(args)
                     .Build())
+                .UseStaticWebAssets()
                 .UseStartup<Startup>()
                 .Build();
     }

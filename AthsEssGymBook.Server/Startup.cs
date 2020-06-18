@@ -24,7 +24,7 @@ namespace AthsEssGymBook.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-              options.UseSqlite(@"Filename=Databases\authentication.db"));
+              options.UseSqlite(@"Filename=authentication.db"));
 
             services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -118,7 +118,10 @@ namespace AthsEssGymBook.Server
                 //AthsEssGymBook.Server.Data.BookingsoApi.MapRoutes(endpoints);
             });
 
-   
+            //// Telerik: make sure this is present to enable static files from a package
+            //app.UseStaticFiles();
+
+
         }
     }
 }
