@@ -40,12 +40,14 @@ Live demo for blazorwithidentity [Demo](https://blazorwithidentity.azurewebsites
 - Set Min day to book as Today.  _**Done**_
 - Add Admin page and restrict who it shows to. _**Done**
 - App settings static class _**Done**_
+- Enable roles: athlete,coach,has pass,admin _**Done**_
+  - Done in custom manner not using Athentication API
+- Auto add Admin account if it doesn't exist _**Done**_
 
 ### 2Dos
 - Fix booking bugs for non Today bookings.
 - Add Admin functions to Admin page (See list on that page).
 - Map allowed booking times.
-- Enable roles: athlete,coach,has pass,admin
 - Table layout issue for buttons, only: Currently uses full screen. _**Largely one**_
 - Put settings in DB and allow Admin to change online.
 - Implement I forgot pwd. Further no email capability yet.
