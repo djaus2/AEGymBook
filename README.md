@@ -5,7 +5,7 @@ Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)
 
 My Blog Posts on this _(3 thus far)_: [At http://www.sportronics.com.au](http://www.sportronics.com.au/search.html?query=gym+book)
 
->> Note there is another branch under development with lots of new features: []Slots()
+>> Note there is another branch under development with lots of new features: [UseTimeSlots]()
 
 ## About
 A sample project showcasing Blazor WebApps.  
