@@ -55,7 +55,7 @@
         @if (IsCoach)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="coach">
+                <NavLink class="nav-link" href="BookAsCoach">
                     <span class="oi oi-briefcase" aria-hidden="true"></span> Book as Coach
                 </NavLink>
             </li>
@@ -63,7 +63,7 @@
         @if (HasAccessCard)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="hasaccesscard">
+                <NavLink class="nav-link" href="HasAccessCard">
                     <span class="oi oi-briefcase" aria-hidden="true"></span> Book Out of Hours
                 </NavLink>
             </li>
@@ -71,7 +71,7 @@
         @if (CanSetSlots)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="cansetslots">
+                <NavLink class="nav-link" href="CanSetSlots">
                     <span class="oi oi-briefcase" aria-hidden="true"></span> Set Booking Sots
                 </NavLink>
             </li>
@@ -79,7 +79,7 @@
         @if (IsAdmin)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="admin">
+                <NavLink class="nav-link" href="Admin">
                     <span class="oi oi-briefcase" aria-hidden="true"></span> Admin
                 </NavLink>
             </li>
@@ -108,6 +108,7 @@
             IsAdmin = true;
             HasAccessCard = true;
             CanSetSlots =true;
+            IsCoach = true;
         }
         else
         {
