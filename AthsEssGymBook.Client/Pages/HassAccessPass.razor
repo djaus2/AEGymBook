@@ -1,0 +1,58 @@
+﻿@page "/HasAccessCard"
+
+@inject NavigationManager navigationManager
+@inject IdentityAuthenticationStateProvider authStateProvider
+@inject AthsEssGymBook.Client.Services.AthleteClient athleteClient
+
+<AuthorizeView>
+    <Authorized>
+        <h2>Athletics Essendon Gym Bookings</h2>
+        <h3><font color="blue">Has Access Pass Bookings:</font></h3>
+        <h4>Hello @context.User.Identity.Name</h4>
+
+        <ul>
+            <li>
+                Not yet available.
+            </li>
+        </ul>
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    bool bIsAdmin = false;
+    bool bHasAccessCard = false;
+    bool bIsCoach = false;
+    bool bCanSetSlots = false;
+
+
+    AuthenticationState context { get; set; }
+    string UserName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await authStateProvider.GetAuthenticationStateAsync();
+        UserName = context.User.Identity.Name;
+
+        Athlete user = await athleteClient.GetAthlete(UserName);
+        if (user.IsAdmin)
+        {
+            bIsAdmin = true;
+            bHasAccessCard = true;
+            bCanSetSlots = true;
+        }
+        else
+        {
+            bIsAdmin = user.IsAdmin;
+            bHasAccessCard = user.HasAccessCard;
+            bIsCoach = user.IsCoach;
+            bCanSetSlots = user.CanSetSlots;
+        }
+        if (!bHasAccessCard)
+            navigationManager.NavigateTo("/");
+
+    }
+}
+
+

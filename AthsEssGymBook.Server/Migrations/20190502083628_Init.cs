@@ -43,7 +43,8 @@ namespace AthsEssGymBook.Server.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     IsAdmin = table.Column<bool>(nullable: false),
                     IsCoach = table.Column<bool>(nullable: false),
-                    HasAccessCard = table.Column<bool>(nullable: false)
+                    HasAccessCard = table.Column<bool>(nullable: false),
+                    CanSetSlots = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {

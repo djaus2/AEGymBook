@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using System.Threading.Tasks;
+
 
 namespace AthsEssGymBook.Server.Controllers
 {
@@ -24,6 +26,64 @@ namespace AthsEssGymBook.Server.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
 
+            if (!Settings.HaveSetupAdmin)
+            {
+                Settings.HaveSetupAdmin = true;
+                AddAdminAccount(Settings.AdminName,Settings.AdminPwd).GetAwaiter();
+            }
+        }
+
+        public async Task AddAdminAccount(string name,string pwd)
+        {
+            ApplicationUser user = new ApplicationUser();
+            user.UserName = name;
+            user.IsAdmin = true;
+            user.Email = "";
+            user.PhoneNumber = "";
+            user.LockoutEnabled = false;
+            ApplicationUser usr = await _userManager.FindByNameAsync(user.UserName);
+            if (usr == null)
+            {
+                var result = await _userManager.CreateAsync(user, pwd);
+                if (!result.Succeeded) return;
+
+                ApplicationUser usr2 = await _userManager.FindByNameAsync(user.UserName);
+                await AddUserToAthletes(usr2);
+            }
+        }
+
+        private async Task AddUserToAthletes(ApplicationUser user)
+        {
+            Athlete athlete;
+            using (BookingsDBContext db = new BookingsDBContext())
+            {
+                db.Database.EnsureCreated();
+                athlete = new Athlete
+                {
+                    Id = 0,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    IsAdmin = user.IsAdmin,
+                    IsCoach = user.IsCoach,
+                    CanSetSlots = user.CanSetSlots,
+                    HasAccessCard = user.HasAccessCard,
+                    PhoneNumber = user.PhoneNumber
+                };
+                try
+                {
+                    await db.Athletes.AddAsync(athlete);
+                    await db.SaveChangesAsync();
+                    //Should have some check here:
+                    var athletes = db.Athletes.ToList();
+                    athlete = athletes[0];
+                    System.Diagnostics.Debug.WriteLine(athlete.Id);
+                }
+                catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlEx.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
+                }
+            }
         }
 
         [HttpPost]
@@ -35,9 +95,16 @@ namespace AthsEssGymBook.Server.Controllers
             if (!singInResult.Succeeded) return BadRequest("Invalid password");
 
             await _signInManager.SignInAsync(user, parameters.RememberMe);
+            bool IsAdmin = user.IsAdmin;
+            bool IsCoach = user.IsCoach;
+            bool HasAccessCard = user.HasAccessCard;
+
+            
 
             return Ok();
         }
+
+
 
 
         [HttpPost]
@@ -52,74 +119,7 @@ namespace AthsEssGymBook.Server.Controllers
             usr.Email = parameters.Email;
             usr.PhoneNumber = parameters.Phone;
             await _userManager.UpdateAsync(usr);
-            Athlete athlete;
-            using (BookingsDBContext db = new BookingsDBContext())
-            {
-                db.Database.EnsureCreated();
-                athlete = new Athlete
-                {
-                    Id = 0,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    HasAccessCard = user.HasAccessCard,
-                    IsAdmin = user.IsAdmin,
-                    IsCoach = user.IsCoach,
-                    PhoneNumber = user.PhoneNumber
-                };
-                try
-                {
-                    await db.Athletes.AddAsync(athlete);
-                    await db.SaveChangesAsync();
-                    var athletes = db.Athletes.ToList();
-                    athlete = athletes[0];
-                    System.Diagnostics.Debug.WriteLine(athlete.Id);
-                }
-                catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
-                {
-                    System.Diagnostics.Debug.WriteLine(sqlEx.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
-                }
-            }
-            System.Diagnostics.Debug.WriteLine(athlete.Id);
-            //using (BookingsDBContext db2 = new BookingsDBContext())
-            //{
-            //    athlete.Id = 1;
-            //    System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror of user====");
-            //    var booking = new BookingInfo
-            //    {
-            //        Id = 0,
-            //        Date = new DateTime(2020, 2, 15),
-            //        _Time = 12,
-            //        _Duration = 2,
-            //        Slot = 1,
-            //        AthleteId = athlete.Id
-            //    };
-            //    System.Diagnostics.Debug.WriteLine("====Done Athlete mirror of user====");
-            //    try
-            //    {
-            //       // db2.Attach<BookingInfo>(booking);
-            //        System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 2====");
-            //        await db2.BookingInfo.AddAsync(booking);
-            //        System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 3====");
-            //        await db2.SaveChangesAsync();
-            //        System.Diagnostics.Debug.WriteLine("====Doing Booking mirror db - 4r====");
-            //    }
-            //    catch (Microsoft.Data.Sqlite.SqliteException sqlEx)
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
-            //        System.Diagnostics.Debug.WriteLine(sqlEx.Message);
-            //        System.Diagnostics.Debug.WriteLine(sqlEx.InnerException);
-            //    }
-            //    catch (Exception Ex)
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("====Doing Athlete mirror db Error");
-            //        System.Diagnostics.Debug.WriteLine(Ex.Message);
-            //        System.Diagnostics.Debug.WriteLine(Ex.InnerException);
-            //    }
-            //}
-
-
-
+            await AddUserToAthletes(usr);
             return await Login(new LoginParameters
             {
                 UserName = parameters.UserName,

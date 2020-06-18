@@ -7,7 +7,9 @@ namespace AthsEssGymBook.Shared
 {
     public static class Settings
     {
+        public static bool HaveSetupAdmin { get; set; } = false;
         public const string AdminName = "AdminMe";
+        public const string AdminPwd = "P@sSw0rD";
         public static List<int> DaysOfTheWeek { get; set; } = new List<int> { 1, 2, 3, 4, 5, 6, 7 };
         public static List<int> OpenDays { get; set; } = new List<int> { 1, 2, 3, 4, 5, 7 }; //Mon to Sun no Sat
         public static List<int> ClosedDays { get {

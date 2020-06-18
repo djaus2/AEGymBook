@@ -1,0 +1,230 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace AthsEssGymBook.Client.Services
+{
+    using AthsEssGymBook.Client.Pages;
+    using AthsEssGymBook.Shared;
+    using System.Dynamic;
+    using System.Net.Http;
+    using System.Net.Http.Json;
+    using System.Threading.Tasks;
+
+    public class AthleteClient
+    {
+        private readonly HttpClient client;
+        private const string ServiceEndpoint = "/api/Athletes";
+
+        public AthleteClient(HttpClient client)
+        {
+            this.client = client;
+        }
+
+        public async Task<Athlete> GetAthlete(string name)
+        {
+            var users = new Athlete[0];
+
+            try
+            {
+                users = await client.GetFromJsonAsync<Athlete[]>(
+                    ServiceEndpoint);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+            var users2 = from u in users where u.UserName == name select u;
+            if (users2.Count() == 0)
+            {
+                return null;
+            }
+            return users2.FirstOrDefault();
+        }
+
+        public async Task<Athlete[]> GetAthletes()
+        {
+            var users = new Athlete[0];
+
+            try
+            {
+
+                users = await client.GetFromJsonAsync<Athlete[]>(
+                    ServiceEndpoint);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+            var users2 = users.OrderBy(b => b.UserName);
+            return users.ToArray<Athlete>();
+        }
+
+        /*
+        public async Task<List<Athlete>> GetBookings(DateTime date,int Id = 0)
+        {
+            var bookings = new Athlete[0];
+            var bookingsQ = new List<Athlete>();
+            try
+            {
+                bookings = await GetBookings( Id);
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+                bookingsQ.AddRange(books);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return bookingsQ;
+        }
+
+        public async Task <List<TimeSpan>> GetMyBookingsForDay(DateTime date, int Id)
+        {
+             List<TimeSpan> myBook = new List<TimeSpan>();
+            var bookings = new Athlete[0];
+            var bookingsQ = new List<Athlete>();
+            try
+            {
+                bookings = await GetBookings(Id);
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+                int[] times = books.AsEnumerable().Select(s => s._Time).ToArray<int>();
+                foreach (var time in times)
+                {
+                    var spots = from t in books where t._Time == time select t;
+                    int count = spots.Count();
+                    if (count != 0)
+                    {
+                        TimeSpan timeTS = new TimeSpan(0, time * 30, 0);
+                        if (! myBook.Contains(timeTS))
+                            myBook.Add(timeTS);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return myBook;
+        }
+
+        public async Task<Dictionary<TimeSpan, int>> GetBookingCountForDay(DateTime date)
+        {
+            Dictionary<TimeSpan, int> dict = new Dictionary<TimeSpan, int>();
+            var bookings = new Athlete[0];
+            var bookingsQ = new List<Athlete>();
+            try
+            {
+                bookings = await GetBookings();
+                var books = from b in bookings where (b._Date == date.ToString("yyyy-MM-dd")) select b;
+                int[] times = books.AsEnumerable().Select(s => s._Time).ToArray<int>();
+                foreach (var time in times)
+                {
+                    var spots = from t in books where t._Time == time select t;
+                    int count = spots.Count();
+                    if (count != 0)
+                    {
+                        dict[new TimeSpan(0, time * 30, 0)] = count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return dict;
+        }
+
+        public async Task<List<Athlete>> GetBookingsFrom(DateTime date, int Id = 0)
+        {
+            var bookings = new Athlete[0];
+            var bookingsQ = new List<Athlete>();
+            try
+            {
+                bookings = await GetBookings( Id);
+                System.Diagnostics.Debug.WriteLine(date);
+                System.Diagnostics.Debug.WriteLine(DateTime.Compare(new DateTime(2020,6,20), date));
+                // b._Date GE date is >=0
+                var books = from b in bookings where DateTime.Compare( b.Date , date) >=0  select b;
+                bookingsQ.AddRange(books);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return bookingsQ;
+        }
+
+        public async Task<List<Athlete>> GetBookingsSelectedWeek(DateTime date, int Id=0)
+        {
+            var bookings = new Athlete[0];
+            var bookingsQ = new List<Athlete>();
+            int dayOfTheWeek = (int)date.DayOfWeek;
+            DateTime startDate = date.Subtract(new TimeSpan(dayOfTheWeek, 0, 0, 0, 0));
+            DateTime endDate = startDate.Add(new TimeSpan(8, 0, 0, 0, 0));
+            System.Diagnostics.Debug.WriteLine(startDate);
+            System.Diagnostics.Debug.WriteLine(date);
+            System.Diagnostics.Debug.WriteLine(endDate);
+            try
+            {
+                bookings = await GetBookings(Id);
+                var books = from b in bookings where (DateTime.Compare(b.Date, startDate)>0) && (DateTime.Compare(b.Date, endDate)<0) select b;
+                bookingsQ.AddRange(books);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return bookingsQ;
+        }
+
+        public async Task<List<Athlete>> GetBookingsForAthlete(int Id)
+        {
+            var bookings = new Athlete[0];
+            var bookingsQ = new List<Athlete>();
+            try
+            {
+                bookings = await client.GetFromJsonAsync<Athlete[]>(
+                    ServiceEndpoint);
+                var books = from b in bookings where (b.AthleteId == Id) select b;
+                bookingsQ.AddRange(books);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.InnerException);
+            }
+
+            return bookingsQ;
+        }
+
+        public async Task<Athlete> GetBooking(int id)
+        {
+            Athlete booking = await client.GetFromJsonAsync<Athlete>($"{ServiceEndpoint}/{id}");
+            return booking;
+        }
+
+        public async Task AddBooking(Athlete booking)
+        {
+            await client.PostAsJsonAsync(ServiceEndpoint, booking);
+        }
+
+        public async Task DeleteBooking(int id)
+        {
+            await client.DeleteAsync($"{ServiceEndpoint}/{id}");
+        }
+        */
+    }
+}

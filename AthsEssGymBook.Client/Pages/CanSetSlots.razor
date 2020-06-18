@@ -1,0 +1,84 @@
+﻿@page "/CanSetSlots"
+
+@inject NavigationManager navigationManager
+@inject IdentityAuthenticationStateProvider authStateProvider
+@inject AthsEssGymBook.Client.Services.AthleteClient athleteClient
+
+<AuthorizeView>
+    <Authorized>
+        <h2>Athletics Essendon Gym Bookings</h2>
+        <h3><font color="blue">Set Book Time Slots:</font></h3>
+        <h4>Hello @context.User.Identity.Name</h4>
+
+        <ul>
+            <li>
+                Add Booking Slots: <b><i>Done</i></b>
+            </li>
+            <li>
+                Limited to only admin people <b><i>Done</i></b>
+            </li>
+            <li>
+                List Slots: In public page.
+            </li>
+            <li>
+                Disable or delete users and/or their bookings.
+            </li>
+            <li>
+                Delete all bookings for a day, week, month, all. <b><i>Done</i></b>
+            </li>
+            <li>
+                Change settings
+            </li>
+            <li>
+                Backup and restore the database
+            </li>
+            <li>
+                Enable/ diable the app for all others
+            </li>
+            <li>
+                Set user roles to admin,coach,user.  Indicate if user has a pass.
+            </li>
+
+        </ul>
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    bool bIsAdmin = false;
+    bool bHasAccessCard = false;
+    bool bIsCoach = false;
+    bool bCanSetSlots = false;
+
+
+    AuthenticationState context { get; set; }
+    string UserName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await authStateProvider.GetAuthenticationStateAsync();
+        UserName = context.User.Identity.Name;
+
+        Athlete user = await athleteClient.GetAthlete(UserName);
+        if (user.IsAdmin)
+        {
+            bIsAdmin = true;
+            bHasAccessCard = true;
+            bCanSetSlots = true;
+        }
+        else
+        {
+            bIsAdmin = user.IsAdmin;
+            bHasAccessCard = user.HasAccessCard;
+            bIsCoach = user.IsCoach;
+            bCanSetSlots = user.CanSetSlots;
+        }
+
+        if (!bCanSetSlots)
+            navigationManager.NavigateTo("/");
+
+    }
+}
+
+

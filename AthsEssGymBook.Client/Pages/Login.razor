@@ -60,6 +60,9 @@
         try
         {
             await authStateProvider.Login(loginParameters);
+
+            var xx = await authStateProvider.GetUserInfo();
+
             navigationManager.NavigateTo("");
         }
         catch (Exception ex)

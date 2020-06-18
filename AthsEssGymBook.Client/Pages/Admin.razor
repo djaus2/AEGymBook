@@ -4,7 +4,9 @@
 @using System;
 @using AthsEssGymBook.Shared
 @inject HttpClient Http
+@inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
+@inject AthsEssGymBook.Client.Services.AthleteClient athleteClient
 
 @inject Services.BookingSlotsClient _BookingSlotsClient
 
@@ -97,6 +99,17 @@
 
 @code {
 
+    bool bIsAdmin = false;
+    bool bHasAccessCard = false;
+    bool bIsCoach = false;
+    bool bCanSetSlots = false;
+
+    string UserName;
+
+
+    AuthenticationState context { get; set; }
+
+
     string Message = "Info";
 
     bool DatePickerVisible = false;
@@ -127,6 +140,30 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+        context = await authStateProvider.GetAuthenticationStateAsync();
+        UserName = context.User.Identity.Name;
+
+        Athlete user = await athleteClient.GetAthlete(UserName);
+        if (user.IsAdmin)
+        {
+            bIsAdmin = true;
+            bHasAccessCard = true;
+            bCanSetSlots = true;
+        }
+        else
+        {
+            bIsAdmin = user.IsAdmin;
+            bHasAccessCard = user.HasAccessCard;
+            bIsCoach = user.IsCoach;
+            bCanSetSlots = user.CanSetSlots;
+        }
+
+        if (!bIsAdmin)
+            navigationManager.NavigateTo("/");
+
+
+
         Today_DT = DateTime.Today;
         Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
         BookingDate_DT = DateTime.Today;
@@ -318,7 +355,7 @@
 
         var c = TimeSpan.Compare(time, endtime);
 
-        for (int i = 0; TimeSpan.Compare( time , endtime) < 0 ; i++)
+        for (int i = 0; TimeSpan.Compare(time, endtime) < 0; i++)
         {
             await AddaTimeSlot(date, time);
             time = time.Add(incr);
@@ -331,7 +368,7 @@
     async Task DeleteaTimeSlot(DateTime bookingDate_DT, TimeSpan bookTime_TS)
     {
         int id = await _BookingSlotsClient.GetBookingSlotId(bookingDate_DT, bookTime_TS);
-        if (id>0)
+        if (id > 0)
         {
             await _BookingSlotsClient.DeleteBookingSlot(id);
         }
@@ -343,7 +380,7 @@
         var slots4Day = from s in slots where s.Date == bookingDate_DTS select s;
         foreach (var s in slots4Day)
         {
-            await DeleteaTimeSlot(s.Date,s.Time);
+            await DeleteaTimeSlot(s.Date, s.Time);
         }
     }
     #endregion
@@ -398,7 +435,7 @@
         DateTime monday = today.AddDays(-dayofWeek + 1);
         foreach (int openDay in AthsEssGymBook.Shared.Settings.OpenDays)
         {
-            DateTime day = monday.AddDays(openDay- 1);
+            DateTime day = monday.AddDays(openDay - 1);
             await DeleteSlotsForDay(day);
         }
     }

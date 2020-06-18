@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
+@inject AthsEssGymBook.Client.Services.AthleteClient athleteClient
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">AE Gym Bookings</a>
@@ -51,7 +52,31 @@
                 <span class="oi oi-elevator" aria-hidden="true"></span> Logout
             </NavLink>
         </li>
-        @if (context.User.Identity.Name == @AdminName)
+        @if (IsCoach)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="coach">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Book as Coach
+                </NavLink>
+            </li>
+        }
+        @if (HasAccessCard)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="hasaccesscard">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Book Out of Hours
+                </NavLink>
+            </li>
+        }
+        @if (CanSetSlots)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="cansetslots">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Set Booking Sots
+                </NavLink>
+            </li>
+        }
+        @if (IsAdmin)
         {
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="admin">
@@ -63,11 +88,35 @@
 </div>
 
 @functions {
-    string AdminName = AthsEssGymBook.Shared.Settings.AdminName;
+    bool IsAdmin = false;
+    bool HasAccessCard = false;
+    bool IsCoach = false;
+    bool CanSetSlots = false;
+
+
     AuthenticationState context { get; set; }
+    string UserName;
+
     protected override async Task OnInitializedAsync()
     {
         context = await authStateProvider.GetAuthenticationStateAsync();
+        UserName = context.User.Identity.Name;
+
+        Athlete user = await athleteClient.GetAthlete(UserName);
+        if (user.IsAdmin)
+        {
+            IsAdmin = true;
+            HasAccessCard = true;
+            CanSetSlots =true;
+        }
+        else
+        {
+            IsAdmin = user.IsAdmin;
+            HasAccessCard = user.HasAccessCard;
+            IsCoach = user.IsCoach;
+            CanSetSlots = user.CanSetSlots;
+        }
+
     }
     bool collapseNavMenu = true;
 

@@ -11,5 +11,6 @@ namespace AthsEssGymBook.Server.Models
         public bool IsAdmin { get; set; } = false;
         public bool IsCoach { get; set; } = false;
         public bool HasAccessCard { get; set; } = false;
+        public bool CanSetSlots { get; set; } = false;
     }
 }

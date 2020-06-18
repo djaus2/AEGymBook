@@ -42,7 +42,11 @@ namespace AthsEssGymBook.Shared
         [Column("IsCoach")]
         [JsonPropertyName("IsCoach")]
         public bool IsCoach { get; set; } = false;
-  
+
+        [Column("CanSetSlots")]
+        [JsonPropertyName("CanSetSlots")]
+        public bool CanSetSlots { get; set; } = false;
+
     }
     public class UserInfo
     {
@@ -57,6 +61,7 @@ namespace AthsEssGymBook.Shared
         public bool HasAccessCard { get; set; } = false;
         public bool IsAdmin { get; set; } = false;
         public bool IsCoach { get; set; } = false;
+        public bool CanSetSlots { get; set; } = false;
 
     }
 }

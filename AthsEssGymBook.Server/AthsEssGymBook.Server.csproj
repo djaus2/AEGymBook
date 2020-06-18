@@ -37,4 +37,8 @@
     <ProjectReference Include="..\AthsEssGymBook.Shared\AthsEssGymBook.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Databases\" />
+  </ItemGroup>
+
 </Project>

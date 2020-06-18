@@ -16,9 +16,10 @@ namespace AthsEssGymBook.Server.Data
         public DbSet<BookingInfo> BookingInfo { get; set; }
         public DbSet<BookingSlot> BookingSlots { get; set; }
 
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=data2.db");
+            optionsBuilder.UseSqlite(@"Data Source=Databases\data.db");
         }
     }
 }
