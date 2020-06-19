@@ -94,7 +94,12 @@ namespace AthsEssGymBook.Server
                 app.UseHsts();
             }
 
-
+            //Only optionally clear db when app is restarted
+            if (Shared.Settings.ResetAuthDB)
+            {
+                Shared.Settings.ResetAuthDB = false;
+                db.Database.EnsureDeleted();
+            }
             db.Database.EnsureCreated();
            
             app.UseHttpsRedirection();

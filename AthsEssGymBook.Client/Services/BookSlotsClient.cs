@@ -64,7 +64,7 @@ namespace AthsEssGymBook.Client.Services
             var books = from b in bookings where b.Date.Date >= DateTime.Now.Date select b;
             bookings = books.ToArray<BookingSlot>();
             var books2 = bookings.OrderByDescending(b => b.Date).ThenBy(b => b.Time);
-            var slots =  books2.ToList<BookingSlot>();
+            List<BookingSlot> slots =  books2.ToList<BookingSlot>();
 
             return slots;
         }

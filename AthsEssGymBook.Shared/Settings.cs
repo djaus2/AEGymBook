@@ -27,5 +27,7 @@ namespace AthsEssGymBook.Shared
 
         public static TimeSpan WithCardOpenHour { get; set; } = new TimeSpan(9, 0, 0); //8am
         public static TimeSpan WithCardCloseHour { get; set; } = CloseHour; //8pm
+        public static bool ResetAuthDB { get; set; } = false;
+        public static bool ResetDatahDB { get; set; } = false;
     }
 }

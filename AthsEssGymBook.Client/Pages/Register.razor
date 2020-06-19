@@ -1,4 +1,4 @@
-﻿@page "/register"
+﻿@page "/Register"
 @layout LoginLayout
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
@@ -40,7 +40,7 @@
         <ValidationMessage For="@(() => registerParameters.EmailConfirm)" />
         
         <div class="form-check m-3">
-            <InputCheckbox id="inputIsMember2019" class="form-check-input" @bind-Value="@registerParameters.IsMember2020" />
+            <InputCheckbox id="inputIsMember2020" class="form-check-input" @bind-Value="@registerParameters.IsMember2020" />
             <label class="form-check-label" for="inputIsMember2020">I am a member of Athletics Essendon 2020/21.</label>
         </div>
         <div class="form-check m-3">

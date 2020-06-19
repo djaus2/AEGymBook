@@ -197,4 +197,40 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+
+    div.table3 {
+        display: table;
+    }
+
+    div.row3 {
+        display: table-row;
+        border-style: solid;
+        border-color: black;
+        border-width: 1px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-right: 5px;
+        padding-left: 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        margin-right: 5px;
+        margin-left: 5px;
+    }
+
+
+    div.cell3 {
+        display: table-cell;
+        border-style: solid;
+        border-width: 1px;
+        vertical-align:central;
+        align-items:center;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        font-weight: 100;
+        font-size: 75%;
+        width: 30px;
+        height: 40px;
+    }
 }
