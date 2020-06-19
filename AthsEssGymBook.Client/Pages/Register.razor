@@ -3,22 +3,34 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
+    <h3 class="font-weight-normal text-center">Create an Account</h3>
     <EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="registerParameters" autocomplete="on">
         <DataAnnotationsValidator />
-        <h4 class="font-weight-normal text-center">Create Account</h4>
 
-        <label for="inputUsername" class="sr-only">User Name</label>
-        <InputText id="inputUsername" class="form-control" placeholder="Username" autofocus @bind-Value="@registerParameters.UserName" autocomplete="name" />
-        <ValidationMessage For="@(() => registerParameters.UserName)" />
+        <b><i><font color="blue"> Mobile Number:</font></i></b> <i>(This will be your login Id)</i><br />
+        <label for="mobileNumber" class="sr-only">Mobile Number</label>
+        <InputText type="tel" id="mobileNumber" class="form-control" @bind-Value="registerParameters.Mobile" autofocus placeholder="Mobile Number" />
+        <ValidationMessage For="@(() => registerParameters.Mobile)" />
 
-        <label for="inputPassword" class="sr-only">Password</label>
-        <InputText type="password" id="inputPassword" class="form-control" placeholder="Password" @bind-Value="@registerParameters.Password" />
-        <ValidationMessage For="@(() => registerParameters.Password)" />
+        <label for="mobileNumberConfirm" class="sr-only">Mobile Number Confirm</label>
+        <InputText type="tel" id="mobileNumberConfirm" class="form-control" @bind-Value="registerParameters.MobileConfirm" autofocus placeholder="Mobile Number Confirmation" />
+        <ValidationMessage For="@(() => registerParameters.MobileConfirm)" />
 
-        <label for="inputPasswordConfirm" class="sr-only">Password Confirmation</label>
-        <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Password Confirmation" @bind-Value="@registerParameters.PasswordConfirm" />
-        <ValidationMessage For="@(() => registerParameters.PasswordConfirm)" />
+        <br/><b><i><font color="blue"> Firstname only required:</font></i></b><br />
+        <label for="inputUsername" class="sr-only">Name</label>
+        <InputText id="inputUsername" class="form-control" @bind-Value="registerParameters.Name" autofocus placeholder="Name" />
+        <ValidationMessage For="@(() => registerParameters.Name)" />
 
+        <br /><b><i><font color="blue"> Pin (4 digits required):</font></i></b><br />
+        <label for="inputPin" class="sr-only">Pin</label>
+        <InputText type="password" id="inputPin" class="form-control" placeholder="Pin" @bind-Value="registerParameters.Pin" />
+        <ValidationMessage For="@(() => registerParameters.Pin)" />
+
+        <label for="inputPinConfirm" class="sr-only">Pin Confirmation</label>
+        <InputText type="password" id="inputPinConfirm" class="form-control" placeholder="Pin Confirmation" @bind-Value="@registerParameters.PinConfirm" />
+        <ValidationMessage For="@(() => registerParameters.PinConfirm)" />
+
+        <br /><b><i><font color="blue"> Email:</font></i></b><br />
         <label for="inputEmail" class="sr-only">Email</label>
         <InputText type="email" id="inputEmail" class="form-control" placeholder="Email Address" autofocus @bind-Value="@registerParameters.Email" required autocomplete="email" />
         <ValidationMessage For="@(() => registerParameters.Email)" />
@@ -26,9 +38,19 @@
         <label for="inputEmailConfirm" class="sr-only">Email Confirmation</label>
         <InputText type="email" id="inputEmailConfirm" class="form-control" placeholder="Email Confirmation" @bind-Value="@registerParameters.EmailConfirm" />
         <ValidationMessage For="@(() => registerParameters.EmailConfirm)" />
+        
+        <div class="form-check m-3">
+            <InputCheckbox id="inputIsMember2019" class="form-check-input" @bind-Value="@registerParameters.IsMember2020" />
+            <label class="form-check-label" for="inputIsMember2020">I am a member of Athletics Essendon 2020/21.</label>
+        </div>
+        <div class="form-check m-3">
+            <InputCheckbox id="inputIsMember2019" class="form-check-input" @bind-Value="@registerParameters.IsMember2019" />
+            <label class="form-check-label" for="inputIsMember2019">I am a member of Athletics Essendon 2019/20.</label>
+        </div>
 
-        <label for="inputPhone" class="sr-only">Phone <i>(Optional)</i></label>
-        <InputText type="tel" id="inputPhone" class="form-control" placeholder="Mobile" autofocus @bind-Value="@registerParameters.Phone" />
+
+        @*<label for="inputPhone" class="sr-only">Phone <i>(Optional)</i></label>
+        <InputText type="tel" id="inputPhone" class="form-control" placeholder="Mobile" autofocus @bind-Value="@registerParameters.Phone" />*@
 
         <div>
             <ul class="nav flex-column">
@@ -67,17 +89,84 @@
         RegisterParameters registerParameters { get; set; } = new RegisterParameters();
         string error { get; set; }
 
+        protected override void OnInitialized()
+        {
+            registerParameters = new RegisterParameters();
+            error = null;
+        }
+
         async Task OnSubmit()
         {
-            error = null;
-            try
+            if (!registerParameters.IsMember2020)
             {
-                await authStateProvider.Register(registerParameters);
-                navigationManager.NavigateTo("");
+                if (!registerParameters.IsMember2019)
+                {
+                    return;
+                }
             }
-            catch (Exception ex)
+            registerParameters.IsMember2020 = true;
+            //Validate Mobile
+            //0400000000 to 0499999999
+            long MobileNo;
+            if( ! long.TryParse(registerParameters.Mobile, out MobileNo))
             {
-                error = ex.Message;
+                error = "Invalid Mobile";
+                return;
+            }
+            if (MobileNo < 0400000000)
+            {
+                error = "Invalid Mobile";
+                return;
+            }
+            if (MobileNo > 0499999999)
+            {
+                error = "Invalid Mobile";
+                return;
+            }
+            //Validate  Pin
+            int pin;
+            if (!int.TryParse(registerParameters.Pin, out pin))
+            {
+                error = "Invalid Pin. 4 digits required";
+                return;
+            }
+            if (registerParameters.Pin.Length < 4)
+            {
+                error = "Invalid Pin. 4 digits required";
+                return;
+            }
+            if (registerParameters.Pin.Length > 4)
+            {
+                error = "Invalid Pin. 4 digits required";
+                return;
+            }
+            //Validate Name
+            if (registerParameters.Name.Length <4 )
+            {
+                error = "Please enter your first name, of at least 4 characters, alpha only";
+                return;
+            }
+            string name = registerParameters.Name;
+            if (!registerParameters.Name.All(char.IsLetter))
+            {
+                error = "Please enter your first name, of at least 4 characters, alpha only";
+                return;
+            }
+            if (true)
+            {
+                registerParameters.UserName = registerParameters.Mobile;
+                registerParameters.Password = registerParameters.Pin;
+                registerParameters.Phone = registerParameters.Mobile;
+                error = null;
+                try
+                {
+                    await authStateProvider.Register(registerParameters);
+                    navigationManager.NavigateTo("");
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                }
             }
         }
 

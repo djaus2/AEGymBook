@@ -3,59 +3,112 @@
 @inject NavigationManager navigationManager
 @inject IdentityAuthenticationStateProvider authStateProvider
 
+<h4 class="font-weight-normal text-center">Login</h4>
 
-    <EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="loginParameters">
-        <DataAnnotationsValidator />
-        <h4 class="font-weight-normal text-center">Login</h4>
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="loginParameters">
+    <DataAnnotationsValidator />
 
-        <label for="inputUsername" class="sr-only">User Name</label>
-        <InputText id="inputUsername" class="form-control" @bind-Value="loginParameters.UserName" autofocus placeholder="Username" />
-        <ValidationMessage For="@(() => loginParameters.UserName)" />
+    <b><i><font color="blue"> Mobile Number:</font></i></b> <i>(This is your login Id)</i><br />
+    <label for="mobileNumber" class="sr-only">Mobile Number</label>
+    <InputText id="mobileNumber" class="form-control" @bind-Value="loginParameters.Mobile" autofocus placeholder="Mobile Number" />
+    <ValidationMessage For="@(() => loginParameters.Mobile)" />
 
-        <label for="inputPassword" class="sr-only">Password</label>
-        <InputText type="password" id="inputPassword" class="form-control" placeholder="Password" @bind-Value="loginParameters.Password" />
-        <ValidationMessage For="@(() => loginParameters.Password)" />
+    <b><i><font color="blue"> Pin:</font></i></b> <br />
+    <label for="inputPin" class="sr-only">Pin</label>
+    <InputText type="password" id="inputPin" class="form-control" placeholder="Pin" @bind-Value="loginParameters.Pin" />
+    <ValidationMessage For="@(() => loginParameters.Pin)" />
 
-        <div class="form-check m-3">
-            <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginParameters.RememberMe" />
-            <label class="form-check-label" for="inputRememberMe">Remember Me</label>
-        </div>
+    <div class="form-check m-3">
+        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginParameters.RememberMe" />
+        <label class="form-check-label" for="inputRememberMe">Remember Me</label>
+    </div>
 
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 
 
 
-        <div>
-            <ul class="nav flex-column">
-                <li class="nav-item px-3">
-                    <div class="main">
-                        <div class="content px-4">
-                            <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@RegistertClick">Register</button>
-                        </div>
+    <div>
+        <ul class="nav flex-column">
+            <li class="nav-item px-3">
+                <div class="main">
+                    <div class="content px-4">
+                        <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@RegistertClick">Register</button>
                     </div>
-                </li>
-                <li class="nav-item px-3">
-                    <div class="main">
-                        <div class="content px-4">
-                            <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@ForgotPwdClick">Forgot Pwd</button>
-                        </div>
+                </div>
+            </li>
+            <li class="nav-item px-3">
+                <div class="main">
+                    <div class="content px-4">
+                        <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@ForgotPwdClick">Forgot Pwd</button>
                     </div>
-                </li>
-            </ul>
-        </div>
+                </div>
+            </li>
+        </ul>
+    </div>
 
-        <label class="text-danger">@error</label>
-    </EditForm>
+    <label class="text-danger">@error</label>
+</EditForm>
 
 
 
-    @code{
+@code{
     LoginParameters loginParameters { get; set; } = new LoginParameters();
     string error { get; set; }
+
+    protected override void OnInitialized()
+    {
+        loginParameters = new LoginParameters();
+        error = null;
+    }
 
     async Task OnSubmit()
     {
         error = null;
+        //Validate Mobile
+        //0400000000 to 0499999999
+        if ((loginParameters.Mobile != Settings.AdminName) &&
+                (loginParameters.Mobile != Settings.MyName))
+        {
+            long MobileNo;
+            if (!long.TryParse(loginParameters.Mobile, out MobileNo))
+            {
+                error = "Invalid Mobile";
+                return;
+            }
+            if (MobileNo < 0400000000)
+            {
+                error = "Invalid Mobile";
+                return;
+            }
+            if (MobileNo > 0499999999)
+            {
+                error = "Invalid Mobile";
+                return;
+            }
+            //Validate  Pin
+            int pin;
+            if (!int.TryParse(loginParameters.Pin, out pin))
+            {
+                error = "Invalid Pin. 4 digits required";
+                return;
+            }
+            if (loginParameters.Pin.Length < 4)
+            {
+                error = "Invalid Pin. 4 digits required";
+                return;
+            }
+            if (loginParameters.Pin.Length > 4)
+            {
+                error = "Invalid Pin. 4 digits required";
+                return;
+            }
+        }
+        else
+        {
+
+        }
+        loginParameters.UserName = loginParameters.Mobile;
+        loginParameters.Password = loginParameters.Pin;
         try
         {
             await authStateProvider.Login(loginParameters);
@@ -79,4 +132,4 @@
     {
         navigationManager.NavigateTo("/forgotpwd");
     }
-    }
+}

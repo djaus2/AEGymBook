@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Net.NetworkInformation;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace AthsEssGymBook.Shared
@@ -8,22 +10,44 @@ namespace AthsEssGymBook.Shared
     public class RegisterParameters
     {
         [Required]
-        public string UserName { get; set; }
+        public string Name { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        public string Pin { get; set; }
 
         [Required]
-        [Compare(nameof(Password), ErrorMessage = "Passwords do not match")]
-        public string PasswordConfirm { get; set; }
+        [Compare(nameof(Pin), ErrorMessage = "Pins do not match")]
+        public string PinConfirm { get; set; }
 
         [Required]
         public string Email { get; set; }
 
         [Required]
+        [IgnoreDataMember]
         [Compare(nameof(Email), ErrorMessage = "Emails do not match")]
         public string EmailConfirm { get; set; }
 
-        public string Phone { get; set; }
+        [Required]
+        public string Mobile { get; set; }
+
+        [Required]
+        [IgnoreDataMember]
+        [Compare(nameof(Mobile), ErrorMessage = "Mobiles do not match")]
+        public string MobileConfirm { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Password { get; set; }
+
+        public string Phone
+        {
+            get; set;
+        }
+
+        public bool IsMember { get; set; } = false;
+        [IgnoreDataMember]
+        public bool IsMember2019 { get; set; } = false;
+        [IgnoreDataMember]
+        public bool IsMember2020 { get; set; } = false;
     }
 }

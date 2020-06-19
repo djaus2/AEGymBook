@@ -71,6 +71,8 @@
 
 @functions {
 
+    string UserName { get; set; } = "";
+
     AuthenticationState context { get; set; }
     List<BookingInfo> MyBookingz { get; set; } = new List<BookingInfo>();
     List<BookingInfo> Bookings { get; set; } = new List<BookingInfo>();
@@ -97,6 +99,26 @@
     string ThisDate = System.DateTime.Today.ToString("D");
 
     DateTime BookingDate_DT = DateTime.Today;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Today_DT = DateTime.Today;
+        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
+        BookingDate_DT = DateTime.Today;
+        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
+
+        string ThisDate = System.DateTime.Today.ToString("D");
+
+
+        context = await authStateProvider.GetAuthenticationStateAsync();
+        string name = context.User.Identity.Name;
+        var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
+        Athletes = vathletes.ToList<Athlete>();
+        LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
+        UserName = LoggegInAthlete.Name;
+        await RefreshData();
+        StateHasChanged();
+    }
 
     void UpdateDate()
     {
@@ -263,24 +285,7 @@
         MyBookingTimes = await BookingsClient.GetMyBookingsForDay(DateTime.Today, LoggegInAthlete.Id);
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        Today_DT = DateTime.Today;
-        Today_Local = new LocalDate(Today_DT.Year, Today_DT.Month, Today_DT.Day);
-        BookingDate_DT = DateTime.Today;
-        BookingDate_Local = new LocalDate(BookingDate_DT.Year, BookingDate_DT.Month, BookingDate_DT.Day);
 
-        string ThisDate = System.DateTime.Today.ToString("D");
-
-
-        context = await authStateProvider.GetAuthenticationStateAsync();
-        string name = context.User.Identity.Name;
-        var vathletes = await Http.GetFromJsonAsync<Athlete[]>("api/Athletes");
-        Athletes = vathletes.ToList<Athlete>();
-        LoggegInAthlete = await Http.GetFromJsonAsync<Athlete>($"api/Athletes/{name}");
-        await RefreshData();
-        StateHasChanged();
-    }
 
 
     void DatePickerFocused(FocusEventArgs e)

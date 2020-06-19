@@ -18,9 +18,16 @@ namespace AthsEssGymBook.Shared
         public int Id { get; set; }
 
         [Column ("UserName")]
+        [Required]
         //public bool IsAuthenticated { get; set; }
         [JsonPropertyName("UserName")]
         public string UserName { get; set; }
+
+        [Column("Name")]
+        [Required]
+        //public bool IsAuthenticated { get; set; }
+        [JsonPropertyName("Name")]
+        public string Name { get; set; }
 
         [Column("Email")]
         [Required]
@@ -46,6 +53,10 @@ namespace AthsEssGymBook.Shared
         [Column("CanSetSlots")]
         [JsonPropertyName("CanSetSlots")]
         public bool CanSetSlots { get; set; } = false;
+
+        [Column("IsMember")]
+        [JsonPropertyName("IsMember")]
+        public bool IsMember { get; set; } = false;
 
     }
     public class UserInfo

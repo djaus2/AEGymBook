@@ -29,6 +29,7 @@ namespace AthsEssGymBook.Server.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
+                    Name = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(nullable: false),
@@ -37,6 +38,7 @@ namespace AthsEssGymBook.Server.Migrations
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    Mobile = table.Column<string>(nullable: true),
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
@@ -44,7 +46,8 @@ namespace AthsEssGymBook.Server.Migrations
                     IsAdmin = table.Column<bool>(nullable: false),
                     IsCoach = table.Column<bool>(nullable: false),
                     HasAccessCard = table.Column<bool>(nullable: false),
-                    CanSetSlots = table.Column<bool>(nullable: false)
+                    CanSetSlots = table.Column<bool>(nullable: false),
+                    IsMember = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {

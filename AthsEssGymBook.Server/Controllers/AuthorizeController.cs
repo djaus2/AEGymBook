@@ -37,6 +37,7 @@ namespace AthsEssGymBook.Server.Controllers
         {
             ApplicationUser user = new ApplicationUser();
             user.UserName = name;
+            user.Name = name;
             user.IsAdmin = true;
             user.Email = "";
             user.PhoneNumber = "";
@@ -62,11 +63,13 @@ namespace AthsEssGymBook.Server.Controllers
                 {
                     Id = 0,
                     UserName = user.UserName,
+                    Name = user.Name,
                     Email = user.Email,
                     IsAdmin = user.IsAdmin,
                     IsCoach = user.IsCoach,
                     CanSetSlots = user.CanSetSlots,
                     HasAccessCard = user.HasAccessCard,
+                    IsMember = user.IsMember,
                     PhoneNumber = user.PhoneNumber
                 };
                 try
@@ -118,6 +121,14 @@ namespace AthsEssGymBook.Server.Controllers
             var usr = await _userManager.FindByNameAsync(user.UserName);
             usr.Email = parameters.Email;
             usr.PhoneNumber = parameters.Phone;
+            usr.Mobile = parameters.Mobile;
+            usr.HasAccessCard = false;
+            usr.CanSetSlots = false;
+            usr.IsCoach = false;
+            usr.IsAdmin = false;
+            usr.IsMember = parameters.IsMember;
+            usr.PhoneNumberConfirmed = true;
+            usr.EmailConfirmed = true;
             await _userManager.UpdateAsync(usr);
             await AddUserToAthletes(usr);
             return await Login(new LoginParameters
