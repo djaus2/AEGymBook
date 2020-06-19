@@ -5,6 +5,8 @@ Can view app on azurewebsites here: [Demo](https://athsess.azurewebsites.net)
 
 My Blog Posts on this _(3 thus far)_: [At http://www.sportronics.com.au](http://www.sportronics.com.au/search.html?query=gym+book)
 
+>> Note: This branch now uses Telerik Grid and Buttons
+
 ## About
 A sample project showcasing Blazor WebApps.  
 An app using Enity Framework Core, C#, .NET Core etc.
