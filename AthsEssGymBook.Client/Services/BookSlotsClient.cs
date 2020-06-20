@@ -158,7 +158,7 @@ namespace AthsEssGymBook.Client.Services
 
                 bookings = await client.GetFromJsonAsync<BookingSlot[]>(
                     ServiceEndpoint);
-                var book = from b in bookings where (b.Date == date) && (b.Time == time) select b;
+                var book = from b in bookings where (b.Date == date.Date) && (b.Time == time) select b;
                 BookingSlot slot = book.FirstOrDefault();
                 if (slot == null)
                     return 0;

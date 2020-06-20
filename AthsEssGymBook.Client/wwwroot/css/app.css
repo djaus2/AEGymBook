@@ -5,7 +5,7 @@ html, body {
 }
 
 a, .btn-link {
-    color: #00ff00;
+    color: #000066;
 }
 
 a, .btn-link2 {
@@ -14,13 +14,19 @@ a, .btn-link2 {
 
 .btn-primary {
     color: #ffffff;
-    background-color: #00ff00;
+    background-color: #006600;
+    border-color: #000000;
+}
+
+.btn-primary2 {
+    color: #ffffff;
+    background-color: #880000;
     border-color: #000000;
 }
 
 .btn-secondary {
     color: #ffffff;
-    background-color: #00ff00;
+    background-color: #660066;
     border-color: #000000;
 }
 

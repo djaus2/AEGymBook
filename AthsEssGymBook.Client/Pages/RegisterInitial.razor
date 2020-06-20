@@ -33,8 +33,6 @@
         <label class="form-check-label" for="inputIsMember2020">I am a member of Athletics Essendon 2020/21.</label>
     </div>
     <br />
-    <br />
-    <br />
     <div class="form-check m-3">
         <InputCheckbox id="inputIsMember2019" class="form-check-input" @bind-Value="@registerInitialParameters.IsMember2019" />
         <label class="form-check-label" for="inputIsMember2019">I am a member of Athletics Essendon 2019/20.</label>
@@ -49,14 +47,7 @@
             <li class="nav-item px-3">
                 <div class="main">
                     <div class="content px-4">
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
-                    </div>
-                </div>
-            </li>
-            <li class="nav-item px-3">
-                <div class="main">
-                    <div class="content px-4">
-                        <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@LoginClick">Have account</button>
+                        <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@LoginClick">Back</button>
                     </div>
                 </div>
             </li>
