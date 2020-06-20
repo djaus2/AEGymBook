@@ -1,0 +1,170 @@
+﻿@page "/RegisterInitial"
+@layout LoginLayout
+@inject NavigationManager navigationManager
+@inject IdentityAuthenticationStateProvider authStateProvider
+@inject Services.AppData AppData
+
+<h3 class="font-weight-normal text-center">Create an Account</h3>
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="registerInitialParameters" autocomplete="on">
+    <DataAnnotationsValidator />
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
+    <b><i><font color="blue"> Mobile Number:</font></i></b>
+    <i>(This will be your login Id)</i>
+    <br />
+    <label for="mobileNumber" class="sr-only">Mobile Number</label>
+    <InputText type="tel" id="mobileNumber" class="form-control" @bind-Value="registerInitialParameters.Mobile" autofocus placeholder="Mobile Number" />
+    <ValidationMessage For="@(() => registerInitialParameters.Mobile)" />
+    <br />
+    <b><i><font color="blue"> Firstname only required:</font></i></b>
+    <br />
+    <label for="inputUsername" class="sr-only">Name</label>
+    <InputText id="inputUsername" class="form-control" @bind-Value="registerInitialParameters.Name" autofocus placeholder="Name" />
+    <ValidationMessage For="@(() => registerInitialParameters.Name)" />
+
+    <br />
+    <b><i><font color="blue"> Pin (4 digits required):</font></i></b>
+    <br />
+    <label for="inputPin" class="sr-only">Pin</label>
+    <InputText type="password" id="inputPin" class="form-control" placeholder="Pin" @bind-Value="registerInitialParameters.Pin" />
+    <ValidationMessage For="@(() => registerInitialParameters.Pin)" />
+
+    <div class="form-check m-3">
+        <InputCheckbox id="inputIsMember2020" class="form-check-input" @bind-Value="@registerInitialParameters.IsMember2020" />
+        <label class="form-check-label" for="inputIsMember2020">I am a member of Athletics Essendon 2020/21.</label>
+    </div>
+    <br />
+    <br />
+    <br />
+    <div class="form-check m-3">
+        <InputCheckbox id="inputIsMember2019" class="form-check-input" @bind-Value="@registerInitialParameters.IsMember2019" />
+        <label class="form-check-label" for="inputIsMember2019">I am a member of Athletics Essendon 2019/20.</label>
+    </div>
+
+
+    @*<label for="inputPhone" class="sr-only">Phone <i>(Optional)</i></label>
+        <InputText type="tel" id="inputPhone" class="form-control" placeholder="Mobile" autofocus @bind-Value="@registerInitialParameters.Phone" />*@
+
+    <div>
+        <ul class="nav flex-column">
+            <li class="nav-item px-3">
+                <div class="main">
+                    <div class="content px-4">
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item px-3">
+                <div class="main">
+                    <div class="content px-4">
+                        <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@LoginClick">Have account</button>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item px-3">
+                <div class="main">
+                    <div class="content px-4">
+                        <button type="button" class="btn btn-lg btn-secondary btn-block" @onclick="@ForgotPwdClick">Forgot Pwd</button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+
+    <label class="text-danger">@error</label>
+
+</EditForm>
+
+
+@functions{
+
+    RegisterInitialParameters registerInitialParameters { get; set; } = new RegisterInitialParameters();
+    string error { get; set; }
+
+    protected override void OnInitialized()
+    {
+        registerInitialParameters = new RegisterInitialParameters();
+        error = null;
+    }
+
+    void OnSubmit()
+    {
+        if (!registerInitialParameters.IsMember2020)
+        {
+            if (!registerInitialParameters.IsMember2019)
+            {
+                return;
+            }
+        }
+        registerInitialParameters.IsMember2020 = true;
+        //Validate Mobile
+        //0400000000 to 0499999999
+        long MobileNo;
+        if (!long.TryParse(registerInitialParameters.Mobile, out MobileNo))
+        {
+            error = "Invalid Mobile";
+            return;
+        }
+        if (MobileNo < 0400000000)
+        {
+            error = "Invalid Mobile";
+            return;
+        }
+        if (MobileNo > 0499999999)
+        {
+            error = "Invalid Mobile";
+            return;
+        }
+        //Validate  Pin
+        int pin;
+        if (!int.TryParse(registerInitialParameters.Pin, out pin))
+        {
+            error = "Invalid Pin. 4 digits required";
+            return;
+        }
+        if (registerInitialParameters.Pin.Length < 4)
+        {
+            error = "Invalid Pin. 4 digits required";
+            return;
+        }
+        if (registerInitialParameters.Pin.Length > 4)
+        {
+            error = "Invalid Pin. 4 digits required";
+            return;
+        }
+        //Validate Name
+        if (registerInitialParameters.Name.Length < 2)
+        {
+            error = "Please enter your first name, of at least 2 characters, alpha only";
+            return;
+        }
+        string name = registerInitialParameters.Name;
+        if (!registerInitialParameters.Name.All(char.IsLetter))
+        {
+            error = "Please enter your first name, of at least 2 characters, alpha only";
+            return;
+        }
+        if (true)
+        {
+            error = null;
+            try
+            {
+                AppData.registerInitialParameters = registerInitialParameters;
+                navigationManager.NavigateTo("/Register/");
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+        }
+    }
+
+    protected void LoginClick()
+    {
+        navigationManager.NavigateTo("/login");
+    }
+    protected void ForgotPwdClick()
+    {
+        navigationManager.NavigateTo("/forgotpwd");
+    }
+}

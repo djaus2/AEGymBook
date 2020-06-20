@@ -119,16 +119,17 @@ namespace AthsEssGymBook.Server.Controllers
             if (!result.Succeeded) return BadRequest(result.Errors.FirstOrDefault()?.Description);
             
             var usr = await _userManager.FindByNameAsync(user.UserName);
-            usr.Email = parameters.Email;
+            usr.Email = "";
             usr.PhoneNumber = parameters.Phone;
             usr.Mobile = parameters.Mobile;
             usr.HasAccessCard = false;
             usr.CanSetSlots = false;
             usr.IsCoach = false;
             usr.IsAdmin = false;
-            usr.IsMember = parameters.IsMember;
+            usr.IsMember = parameters.IsMember2020;
+            usr.IsMember = parameters.IsMember2019;
             usr.PhoneNumberConfirmed = true;
-            usr.EmailConfirmed = true;
+            usr.EmailConfirmed = false;
             await _userManager.UpdateAsync(usr);
             await AddUserToAthletes(usr);
             return await Login(new LoginParameters

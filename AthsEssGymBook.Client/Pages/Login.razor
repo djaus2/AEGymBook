@@ -7,7 +7,7 @@
 
 <EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="loginParameters">
     <DataAnnotationsValidator />
-
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     <b><i><font color="blue"> Mobile Number:</font></i></b> <i>(This is your login Id)</i><br />
     <label for="mobileNumber" class="sr-only">Mobile Number</label>
     <InputText id="mobileNumber" class="form-control" @bind-Value="loginParameters.Mobile" autofocus placeholder="Mobile Number" />
@@ -22,10 +22,6 @@
         <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginParameters.RememberMe" />
         <label class="form-check-label" for="inputRememberMe">Remember Me</label>
     </div>
-
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-
-
 
     <div>
         <ul class="nav flex-column">
@@ -126,7 +122,7 @@
 
     protected void RegistertClick()
     {
-        navigationManager.NavigateTo("/register");
+        navigationManager.NavigateTo("/registerInitial");
     }
     protected void ForgotPwdClick()
     {

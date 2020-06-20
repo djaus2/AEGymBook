@@ -19,12 +19,7 @@ namespace AthsEssGymBook.Shared
         [Compare(nameof(Pin), ErrorMessage = "Pins do not match")]
         public string PinConfirm { get; set; }
 
-        [Required]
-        public string Email { get; set; }
 
-        [Required]
-        [IgnoreDataMember]
-        [Compare(nameof(Email), ErrorMessage = "Emails do not match")]
         public string EmailConfirm { get; set; }
 
         [Required]
@@ -44,10 +39,8 @@ namespace AthsEssGymBook.Shared
             get; set;
         }
 
-        public bool IsMember { get; set; } = false;
-        [IgnoreDataMember]
+
         public bool IsMember2019 { get; set; } = false;
-        [IgnoreDataMember]
         public bool IsMember2020 { get; set; } = false;
     }
 }

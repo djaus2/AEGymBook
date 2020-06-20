@@ -22,6 +22,7 @@ namespace AthsEssGymBook.Client
             builder.Services.AddScoped<IdentityAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
             builder.Services.AddScoped<IAuthorizeApi, AuthorizeApi>();
+            builder.Services.AddSingleton<Services.AppData>();
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
